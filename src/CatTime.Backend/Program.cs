@@ -1,34 +1,46 @@
+using CatTime.Backend.Database;
+using CatTime.Backend.Database.Entities;
+using CatTime.Backend.Routes;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+ConfigureServices(builder.Services, builder.Configuration);
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-
-app.UseHttpsRedirection();
-
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-});
+MigrateDatabase(app.Services);
+ConfigurePipeline(app);
+ConfigureRoutes(app);
 
 app.Run();
 
-internal record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
+static void ConfigureServices(IServiceCollection services, ConfigurationManager config)
 {
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+    services.AddDbContext<CatContext>(o => o.UseNpgsql(config.GetConnectionString("Postgres")));
+
+    services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie();
+    services.AddAuthorization();
+}
+
+static void MigrateDatabase(IServiceProvider appServices)
+{
+    using (var scope = appServices.CreateScope())
+    {
+        var context = scope.ServiceProvider.GetRequiredService<CatContext>();
+        context.Database.Migrate();
+    }
+}
+
+static void ConfigurePipeline(IApplicationBuilder app)
+{
+    app.UseHttpsRedirection();
+}
+
+static void ConfigureRoutes(IEndpointRouteBuilder routes)
+{
+    routes.MapGet("/", () => "Welcome to CatTime-API!");
+
+    routes.MapAuth();
 }
