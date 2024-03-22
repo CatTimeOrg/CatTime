@@ -61,6 +61,9 @@ public static class AuthRoutes
 
             var employee = new Employee
             {
+                FirstName = request.FirstName,
+                LastName = request.LastName,
+                
                 EmailAddress = request.EmailAddress,
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
 
