@@ -3,6 +3,7 @@ using System;
 using CatTime.Backend.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CatTime.Backend.Database.Migrations
 {
     [DbContext(typeof(CatContext))]
-    partial class CatContextModelSnapshot : ModelSnapshot
+    [Migration("20240322230252_AddFirstNameLastNameToEmployee")]
+    partial class AddFirstNameLastNameToEmployee
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

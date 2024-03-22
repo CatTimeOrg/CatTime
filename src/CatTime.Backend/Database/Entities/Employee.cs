@@ -7,6 +7,9 @@ public class Employee : BaseEntity
     public Company Company { get; set; }
     public List<WorkingTime> WorkingTimes { get; set; }
 
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
+    
     public string EmailAddress { get; set; }
     public string PasswordHash { get; set; }
 
