@@ -4,28 +4,44 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDbContext<CatContext>(o => o.UseNpgsql(builder.Configuration.GetConnectionString("Postgres")));
+ConfigureServices(builder.Services, builder.Configuration);
 
 var app = builder.Build();
 
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-
-    var context = services.GetRequiredService<CatContext>();
-    context.Database.Migrate();
-}
-
-app.UseHttpsRedirection();
-
-app.MapGet("/test", (CatContext context) =>
-{
-    context.Companies.Add(new Company
-    {
-        Name = "Test"
-    });
-
-    context.SaveChanges();
-});
+MigrateDatabase(app.Services);
+ConfigurePipeline(app);
+ConfigureRoutes(app);
 
 app.Run();
+
+static void ConfigureServices(IServiceCollection services, ConfigurationManager config)
+{
+    services.AddDbContext<CatContext>(o => o.UseNpgsql(config.GetConnectionString("Postgres")));
+}
+
+static void MigrateDatabase(IServiceProvider appServices)
+{
+    using (var scope = appServices.CreateScope())
+    {
+        var context = scope.ServiceProvider.GetRequiredService<CatContext>();
+        context.Database.Migrate();
+    }
+}
+
+static void ConfigurePipeline(IApplicationBuilder app)
+{
+    app.UseHttpsRedirection();
+}
+
+static void ConfigureRoutes(IEndpointRouteBuilder routes)
+{
+    routes.MapGet("/test", (CatContext context) =>
+    {
+        context.Companies.Add(new Company
+        {
+            Name = "Test"
+        });
+
+        context.SaveChanges();
+    });
+}
