@@ -1,12 +1,10 @@
 ﻿using System.Security.Claims;
 using CatTime.Backend.Database;
+using CatTime.Backend.Database.Entities;
 using CatTime.Shared;
 using CatTime.Shared.Routes.Auth;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
-
-using Company = CatTime.Backend.Database.Entities.Company;
-using Employee = CatTime.Backend.Database.Entities.Employee;
 
 namespace CatTime.Backend.Routes;
 

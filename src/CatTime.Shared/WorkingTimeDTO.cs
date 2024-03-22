@@ -1,6 +1,6 @@
 ﻿namespace CatTime.Shared;
 
-public class WorkingTime : BaseEntity
+public class WorkingTimeDTO : BaseEntity
 {
     public int CompanyId { get; set; }
     public int EmployeeId { get; set; }
