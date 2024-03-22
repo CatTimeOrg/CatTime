@@ -1,8 +1,8 @@
 {
   "iisSettings": {
     "iisExpress": {
-      "applicationUrl": "http://localhost:4333",
-      "sslPort": 44332
+      "applicationUrl": "http://localhost:50174",
+      "sslPort": 44354
     }
   },
   "profiles": {
@@ -11,7 +11,7 @@
       "dotnetRunMessages": true,
       "launchBrowser": true,
       "inspectUri": "{wsProtocol}://{url.hostname}:{url.port}/_framework/debug/ws-proxy?browser={browserInspectUri}",
-      "applicationUrl": "http://localhost:5260",
+      "applicationUrl": "http://localhost:5147",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
@@ -21,7 +21,7 @@
       "dotnetRunMessages": true,
       "launchBrowser": true,
       "inspectUri": "{wsProtocol}://{url.hostname}:{url.port}/_framework/debug/ws-proxy?browser={browserInspectUri}",
-      "applicationUrl": "https://localhost:7299;http://localhost:5260",
+      "applicationUrl": "https://localhost:7278;http://localhost:5147",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
