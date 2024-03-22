@@ -1,4 +1,5 @@
 ﻿using CatTime.Backend.Database;
+using CatTime.Backend.Extensions;
 using CatTime.Shared;
 
 namespace CatTime.Backend.Routes;
@@ -12,7 +13,7 @@ public static class CompanyRoutes
 
         group.MapGet("/me", async (CatContext catContext, HttpContext httpContext) =>
         {
-            var companyId = int.Parse(httpContext.User.FindFirst("CompanyId")?.Value);
+            var companyId = httpContext.User.GetCompanyId();
             var company = await catContext.Companies.FindAsync(companyId);
 
             return new CompanyDTO
@@ -24,7 +25,7 @@ public static class CompanyRoutes
 
         group.MapPut("/me", async (CompanyDTO companyDTO, CatContext catContext, HttpContext httpContext) =>
         {
-            var companyId = int.Parse(httpContext.User.FindFirst("CompanyId")?.Value);
+            var companyId = httpContext.User.GetCompanyId();
             var company = await catContext.Companies.FindAsync(companyId);
 
             company.Name = companyDTO.Name;
