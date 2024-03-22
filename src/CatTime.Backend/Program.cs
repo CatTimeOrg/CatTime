@@ -44,4 +44,5 @@ static void ConfigureRoutes(IEndpointRouteBuilder routes)
 
     routes.MapAuth();
     routes.MapCompany();
+    routes.MapEmployee();
 }
