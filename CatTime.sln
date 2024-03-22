@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CatTime.Shared", "src\CatTi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CatTime.Backend", "src\CatTime.Backend\CatTime.Backend.csproj", "{EF6DC3A3-D7BD-436A-A750-F77A3899D1C9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CatTime.Frontend", "src\CatTime.Frontend\CatTime.Frontend.csproj", "{56DE3FAD-0EE8-4A86-879D-2D3E01EAF87D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CatTime.Frontend", "src\CatTime.Frontend\CatTime.Frontend.csproj", "{56DE3FAD-0EE8-4A86-879D-2D3E01EAF87D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "solution items", "solution items", "{46E818A9-6DEF-4A2D-A4D6-A22347685224}"
 	ProjectSection(SolutionItems) = preProject

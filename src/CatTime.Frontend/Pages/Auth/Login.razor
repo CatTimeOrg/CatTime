@@ -1,5 +1,35 @@
-﻿<h3>Login</h3>
+﻿@page "/login"
+
+@using CatTime.Frontend.Pages.Auth.Models
+@using CatTime.Shared
+@using Microsoft.AspNetCore.Components.Forms
+
+@inject NavigationManager NavigationManager;
+
+<div class="register-container">
+    <EditForm Model="@_model" OnValidSubmit="OnSubmit">
+        <div class="register-form-container">
+            <MudCard>
+                <MudCardContent>
+                    <MudTextField @bind-Value="_model.Email" Label="E-Mail Adresse" For="@(() => _model.Email)" />
+                    <MudTextField @bind-Value="_model.Password" Label="Passwort" For="@(() => _model.Password)" HelperText="Wählen Sie ein sicheres Passwort" />
+                </MudCardContent>
+                <MudCardActions>
+                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Registrieren</MudButton>
+                </MudCardActions>
+            </MudCard>
+        </div>
+    </EditForm>
+</div>
 
 @code {
+    private RegisterModel _model = new RegisterModel();
+    private string? _password;
+    private string? _passwordConfirm;
 
+    private void OnSubmit(EditContext context)
+    {
+        this.NavigationManager.NavigateTo("/dashboard");
+        this.StateHasChanged();
+    }
 }
