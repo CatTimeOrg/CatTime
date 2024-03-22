@@ -1,6 +1,6 @@
 ﻿namespace CatTime.Shared;
 
-public class Company : BaseEntity
+public class CompanyDTO : BaseEntity
 {
     public string Name { get; set; }
 }
