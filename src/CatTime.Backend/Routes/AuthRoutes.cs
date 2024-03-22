@@ -20,6 +20,7 @@ public static class AuthRoutes
         group.MapPost("/login", async (LoginRequest request, CatContext catContext) =>
         {
             var employee = await catContext.Employees.FirstOrDefaultAsync(e => e.EmailAddress == request.EmailAddress);
+            
             if (employee == null)
             {
                 return Results.Problem("E-Mail-Adresse oder Passwort ist ungültig.", statusCode: StatusCodes.Status400BadRequest);
@@ -29,9 +30,12 @@ public static class AuthRoutes
             {
                 return Results.Problem("E-Mail-Adresse oder Passwort ist ungültig.", statusCode: StatusCodes.Status400BadRequest);
             }
+            
+            await catContext.Entry(employee).Reference(e => e.Company).LoadAsync();
 
             var identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme);
             identity.AddClaim(new Claim("EmployeeId", employee.Id.ToString()));
+            identity.AddClaim(new Claim("CompanyId", employee.Company.Id.ToString()));
 
             var principal = new ClaimsPrincipal(identity);
 
@@ -71,5 +75,12 @@ public static class AuthRoutes
 
             return Results.Ok();
         }).AllowAnonymous();
+        
+        group.MapGet("/me", (HttpContext context) =>
+        {
+            var claims = context.User.Claims.Select(c => new ClaimDTO { Type = c.Type, Value = c.Value }).ToList();
+
+            return Results.Ok(claims);
+        });
     }
 }
