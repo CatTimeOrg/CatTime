@@ -3,20 +3,17 @@ using System;
 using CatTime.Backend.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace CatTime.Backend.Migrations
+namespace CatTime.Backend.Database.Migrations
 {
     [DbContext(typeof(CatContext))]
-    [Migration("20240322213020_CreateFirstTables")]
-    partial class CreateFirstTables
+    partial class CatContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -4,7 +4,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace CatTime.Backend.Migrations
+namespace CatTime.Backend.Database.Migrations
 {
     /// <inheritdoc />
     public partial class CreateFirstTables : Migration
