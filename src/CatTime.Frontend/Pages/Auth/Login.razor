@@ -12,9 +12,14 @@
         </div>
         <EditForm Model="@_model" OnValidSubmit="OnSubmit" class="form-container">
             <div class="login-form-container">
-                <MudTextField @bind-Value="_model.Email" Label="E-Mail Adresse" For="@(() => _model.Email)" />
-                <MudTextField @bind-Value="_model.Password" Label="Passwort" For="@(() => _model.Password)" HelperText="Wählen Sie ein sicheres Passwort" />
-                <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Registrieren</MudButton>
+                <MudText Typo="Typo.h6">CatTime</MudText>
+                <MudTextField @bind-Value="_model.Email" Label="E-Mail Adresse" For="@(() => _model.Email)"/>
+                <MudTextField @bind-Value="_model.Password" Label="Passwort" For="@(() => _model.Password)" InputType="InputType.Password" />
+                
+                <div class="register-link">
+                    <span>Noch keinen Account? <MudLink Href="/register" Typo="Typo.body2">Jetzt registrieren!</MudLink></span>
+                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="submit-button">Anmelden</MudButton>
+                </div>
             </div>
         </EditForm>
     </div>
@@ -22,8 +27,6 @@
 
 @code {
     private RegisterModel _model = new RegisterModel();
-    private string? _password;
-    private string? _passwordConfirm;
 
     private void OnSubmit(EditContext context)
     {

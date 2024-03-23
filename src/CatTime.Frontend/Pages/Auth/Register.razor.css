@@ -1,2 +1,34 @@
-﻿body {
+﻿.register-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.register-card {
+    display: grid;
+
+    grid-template-columns: 30rem 30rem;
+    grid-template-areas: 
+        "image form";
+    gap: 1rem;
+    padding: 1rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19); /* Add this line */
+}
+
+.image-container {
+    grid-area: image;
+    background-color: pink;
+}
+
+.form-container {
+    grid-area: form;
+    background-color: lightblue;
+}
+
+::deep .submit-button {
+    display: flex;
+    margin-left: auto;
+    margin-top: 1rem;
 }
