@@ -8,9 +8,9 @@ using CatTime.Shared.Routes.Auth;
 
 namespace CatTime.Frontend.Infrastructure.Service
 {
-    public class ClientService
+    public partial class ClientService
     {
-        private readonly HttpClient _httpClient;
+        protected readonly HttpClient _httpClient;
 
         public ClientService(HttpClient httpClient)
         {
