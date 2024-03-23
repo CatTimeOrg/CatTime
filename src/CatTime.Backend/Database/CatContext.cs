@@ -28,7 +28,8 @@ public class CatContext : DbContext
         
         modelBuilder
             .Entity<Employee>()
-            .HasQueryFilter(f => f.CompanyId == this._tenantService.GetCurrentCompanyId());
+            .HasQueryFilter(f => f.CompanyId == this._tenantService.GetCurrentCompanyId())
+            .HasIndex(e => e.EmailAddress).IsUnique();
         
         modelBuilder
             .Entity<WorkingTime>()
