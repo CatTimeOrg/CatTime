@@ -16,6 +16,6 @@ namespace CatTime.Shared.Routes.Employees
 
         public string Password { get; set; }
 
-        public EmployeeRole Role { get; set; }
+        public EmployeeRole? Role { get; set; }
     }
 }
