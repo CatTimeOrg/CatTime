@@ -220,7 +220,29 @@ public static class WorkingTimeRoutes
                 return Results.Problem("Es wurde noch nicht eingecheckt.", statusCode: StatusCodes.Status400BadRequest);
             }
             
-            lastWorkingTime.End = TimeOnly.FromDateTime(DateTime.Now);
+            // If the last working time is from a previous day, we need to create a new working time for today
+            if (lastWorkingTime.Date < DateOnly.FromDateTime(DateTime.Today))
+            {
+                lastWorkingTime.End = TimeOnly.MaxValue;
+                
+                var workingTimeEntity = new WorkingTime
+                {
+                    EmployeeId = employee.Id,
+                    CompanyId = employee.CompanyId,
+                    
+                    Date = DateOnly.FromDateTime(DateTime.Today),
+                    Start = TimeOnly.MinValue,
+                    End = TimeOnly.FromDateTime(DateTime.Now),
+                    
+                    Type = lastWorkingTime.Type,
+                };
+                
+                await catContext.WorkingTimes.AddAsync(workingTimeEntity);
+            }
+            else 
+            {
+                lastWorkingTime.End = TimeOnly.FromDateTime(DateTime.Now);
+            }
             
             await catContext.SaveChangesAsync();
             
