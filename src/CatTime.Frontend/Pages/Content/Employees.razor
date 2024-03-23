@@ -1,0 +1,176 @@
+﻿@page "/employees"
+@using CatTime.Shared
+@using System.Timers
+
+<div class="employee-container pa-4">
+    <div class="current-running-time">
+        <MudAvatar Color="Color.Primary" Variant="Variant.Outlined" Size="Size.Medium">EJ</MudAvatar>
+        <div class="running-time d-flex gap-3">
+            <MudText Typo="Typo.h4">@_currentTime.ToString("HH:mm:ss")</MudText>
+            <MudButton Variant="Variant.Outlined" FullWidth="true" Size="Size.Medium" StartIcon="@Icons.Material.Filled.PlayArrow" Color="Color.Tertiary" Disabled="true">Starten</MudButton>
+            <MudButton Variant="Variant.Outlined" FullWidth="true" Size="Size.Medium" StartIcon="@Icons.Material.Filled.Stop" Color="Color.Error">Stoppen</MudButton>
+        </div>
+    </div>
+    <div class="employee-content-area">
+        <div class="d-flex justify-between">
+        <MudButtonGroup Class="mt-4" Color="Color.Primary" Variant="Variant.Outlined">
+            <MudIconButton Icon="@Icons.Material.Filled.AccessAlarm"></MudIconButton>
+            <MudToggleIconButton Icon="@Icons.Material.Filled.AlarmOff" Color="@Color.Error"
+                                 ToggledIcon="@Icons.Material.Filled.AlarmOn" ToggledColor="@Color.Success" />
+            <MudButton StartIcon="@Icons.Material.Filled.AlarmAdd" IconColor="Color.Warning">Add alarm</MudButton>
+        </MudButtonGroup>
+        <MudTextField @bind-Value="Search" Label="Suchen" Variant="Variant.Outlined" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Secondary" />
+        </div>
+        <MudPaper Class="d-flex flex-wrap flex-grow-1 gap-4 mt-4" Elevation="3">
+            @foreach (var employee in EmployeeList)
+            {
+                <MudPaper Class="mud-theme-primary d-flex flex-column align-center" Width="20rem" Height="20rem">
+                    <div class="mt-2 d-flex justify-end full-width">
+                        <MudIconButton Icon="@Icons.Material.Filled.Star" Color="Color.Warning"></MudIconButton>
+                    </div>         
+                    <MudAvatar Class="mb-3 custom-avatar" Color="Color.Warning" Variant="Variant.Outlined">@($"{employee.FirstName.FirstOrDefault('J')}{employee.LastName.FirstOrDefault('D')}".ToUpper())</MudAvatar>
+                    <h2>Ricky Park</h2>
+                    <h5>Entwickler</h5>
+                    <MudChip Class="mt-5" Icon="@Icons.Material.Filled.Phone" Color="Color.Dark">@employee.EmailAddress</MudChip>
+                    <MudChip Icon="@Icons.Material.Filled.Email" Color="Color.Dark">@employee.EmailAddress</MudChip>
+                </MudPaper>
+            }
+        </MudPaper>
+    </div>
+</div>
+
+@code {
+
+    public string Search { get; set; }
+
+    public DateTime _currentTime { get; set;}
+
+
+    List<EmployeeDTO> EmployeeList = new List<EmployeeDTO>()
+        {
+            new EmployeeDTO
+            {
+                CompanyId = 1,
+                FirstName = "John",
+                LastName = "Doe",
+                EmailAddress = "john.doe@example.com",
+                Role = EmployeeRole.Admin,
+                IsActive = true
+            },
+            new EmployeeDTO
+            {
+                CompanyId = 2,
+                FirstName = "Jane",
+                LastName = "Doe",
+                EmailAddress = "jane.doe@example.com",
+                Role = EmployeeRole.Employee,
+                IsActive = false
+            },
+            new EmployeeDTO
+            {
+                CompanyId = 3,
+                FirstName = "Employee",
+                LastName = "One",
+                EmailAddress = "employee.one@example.com",
+                Role = EmployeeRole.Employee,
+                IsActive = true
+            },
+            new EmployeeDTO
+            {
+                CompanyId = 4,
+                FirstName = "Employee",
+                LastName = "Two",
+                EmailAddress = "employee.two@example.com",
+                Role = EmployeeRole.Employee,
+                IsActive = true
+            },
+            new EmployeeDTO
+            {
+                CompanyId = 5,
+                FirstName = "Employee",
+                LastName = "Three",
+                EmailAddress = "employee.three@example.com",
+                Role = EmployeeRole.Employee,
+                IsActive = true
+            },
+            new EmployeeDTO
+            {
+                CompanyId = 6,
+                FirstName = "Employee",
+                LastName = "Four",
+                EmailAddress = "employee.four@example.com",
+                Role = EmployeeRole.Employee,
+                IsActive = true
+            },
+            new EmployeeDTO
+            {
+                CompanyId = 7,
+                FirstName = "Employee",
+                LastName = "Five",
+                EmailAddress = "employee.five@example.com",
+                Role = EmployeeRole.Employee,
+                IsActive = true
+            },
+            new EmployeeDTO
+            {
+                CompanyId = 8,
+                FirstName = "Employee",
+                LastName = "Six",
+                EmailAddress = "employee.six@example.com",
+                Role = EmployeeRole.Employee,
+                IsActive = true
+            },
+            new EmployeeDTO
+            {
+                CompanyId = 9,
+                FirstName = "Employee",
+                LastName = "Seven",
+                EmailAddress = "employee.seven@example.com",
+                Role = EmployeeRole.Employee,
+                IsActive = true
+            },
+            new EmployeeDTO
+            {
+                CompanyId = 10,
+                FirstName = "Employee",
+                LastName = "Eight",
+                EmailAddress = "employee.eight@example.com",
+                Role = EmployeeRole.Employee,
+                IsActive = true
+            },
+            new EmployeeDTO
+            {
+                CompanyId = 11,
+                FirstName = "Employee",
+                LastName = "Nine",
+                EmailAddress = "employee.nine@example.com",
+                Role = EmployeeRole.Employee,
+                IsActive = true
+            },
+            new EmployeeDTO
+            {
+                CompanyId = 12,
+                FirstName = "Employee",
+                LastName = "Ten",
+                EmailAddress = "employee.ten@example.com",
+                Role = EmployeeRole.Employee,
+                IsActive = true
+            },
+            // Add more dummy data as needed
+
+        };
+
+    protected override void OnInitialized()
+    {
+        var timer = new Timer(1000);
+        timer.Elapsed += UpdateTime;
+        timer.Start();
+    }
+
+
+    private void UpdateTime(object sender, ElapsedEventArgs e)
+    {
+        this._currentTime = DateTime.Now;
+        InvokeAsync(StateHasChanged);
+    }
+}

@@ -1,0 +1,30 @@
+﻿.employee-container {
+    display: grid;
+    grid-template-rows: 4rem 1fr;
+    grid-template-areas:
+        "header"
+        "content";
+    height: 100vh;
+}
+
+.current-running-time {
+    grid-area: header;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.employee-content-area {
+    grid-area: content;
+}
+
+
+::deep .custom-avatar{
+    width: 5rem !important;
+    height: 5rem !important;
+}
+
+
+.full-width {
+    width: 100%;
+}
