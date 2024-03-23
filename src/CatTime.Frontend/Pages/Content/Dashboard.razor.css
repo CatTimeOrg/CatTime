@@ -1,15 +1,21 @@
 ﻿.content-container {
     display: grid;
     
+    grid-template-rows: 4rem 1fr;
     grid-template-areas: 
         "header"
         "content";
     padding: 1rem;
+    height: 100vh;
 }
 
 .header-area {
     grid-area: header;
     background-color: darkseagreen;
+    
+    display: flex;
+    align-items: center;
+    gap: 1rem;
 }
 
 .content-area {
