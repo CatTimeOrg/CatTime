@@ -1,11 +1,10 @@
 ﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Components.Authorization;
-using CatTime.Shared;
 using CatTime.Frontend.Infrastructure.Service;
 
 public class CustomAuthenticationStateProvider : AuthenticationStateProvider
 {
-    private const string LocalStorageKey = "currentUser";
+    private const string LocalStorageKey = "authToken";
 
     private readonly LocalStorageService _localStorageService;
 
@@ -14,32 +13,29 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
         _localStorageService = localStorageService;
     }
 
-    public override async Task<AuthenticationState> GetAuthenticationStateAsync()
-    {
-        var currentUser = await GetCurrentUserAsync();
+    public async Task<string> GetTokenAsync() => await _localStorageService.GetItemAsync<string>(LocalStorageKey);
 
-        if (currentUser == null)
+    public async Task SetTokenAsync(string? token)
+    {
+        if (token == null)
         {
-            return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
+           await _localStorageService.RemoveItemAsync(LocalStorageKey);
         }
-
-        Claim[] claims = [
-            new Claim(ClaimTypes.NameIdentifier, currentUser.Id!.ToString()!),
-                new Claim(ClaimTypes.Name, currentUser.EmailAddress!.ToString()!),
-                new Claim(ClaimTypes.Email, currentUser.EmailAddress!.ToString()!)
-        ];
-
-        var authenticationState = new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity(claims, authenticationType: nameof(CustomAuthenticationStateProvider))));
-
-        return authenticationState;
-    }
-
-    public async Task SetCurrentUserAsync(EmployeeDTO? currentUser)
-    {
-        await _localStorageService.SetItem(LocalStorageKey, currentUser);
+        else
+        {
+           await _localStorageService.SetItem<string>(LocalStorageKey,token);
+        }
 
         NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
     }
 
-    public Task<EmployeeDTO?> GetCurrentUserAsync() => _localStorageService.GetItemAsync<EmployeeDTO>(LocalStorageKey);
+    public override async Task<AuthenticationState> GetAuthenticationStateAsync()
+    {
+        var token = await GetTokenAsync();
+        var identity = string.IsNullOrEmpty(token)
+            ? new ClaimsIdentity()
+            : new ClaimsIdentity(token);
+
+        return new AuthenticationState(new ClaimsPrincipal(identity));
+    }
 }

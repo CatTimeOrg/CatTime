@@ -1,9 +1,10 @@
 ﻿@inherits LayoutComponentBase
 
-@using CatTime.Frontend.Pages
+@using CatTime.Frontend.Pages.Redirects
 @using Microsoft.AspNetCore.Components.Authorization
 
 @inject NavigationManager NavigationManager;
+@inject CustomAuthenticationStateProvider AuthStateProvider;
 
 <MudThemeProvider />
 <MudDialogProvider />
@@ -22,6 +23,7 @@
                     </MudNavMenu>
                 </MudDrawer>
                 <div>
+                    <RedirectToDashboard></RedirectToDashboard>
                     @Body
                 </div>
             </MudDrawerContainer>
@@ -33,8 +35,13 @@
 </AuthorizeView>
 
 @code
-{ 
+{
     private bool _open = false;
-    
-    private void Logout() => this.NavigationManager.NavigateTo("/login");
+
+    private async void Logout()
+    {
+        await AuthStateProvider.SetTokenAsync(null);
+
+        this.NavigationManager.NavigateTo("/login");
+    }
 }
