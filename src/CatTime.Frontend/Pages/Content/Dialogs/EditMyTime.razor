@@ -1,0 +1,52 @@
+﻿@using CatTime.Frontend.Pages.Content.Models
+<MudDialog>
+    <DialogContent>
+        <div class="my-3">
+            <MudToggleGroup T="string" Outline="true" Delimiters="true" Dense="true" CheckMark="true">
+                <MudToggleItem Text="Office" Value="@("One")" />
+                <MudToggleItem Text="Home-Office" Value="@("Three")" />
+                <MudToggleItem Text="Reise/Dienste" Value="@("Two")" />
+            </MudToggleGroup>
+        </div>
+        <div class="d-flex">
+            <div>
+                <label>Start Zeit</label>
+                <MudTimePicker Label="Start Zeit" PickerVariant="PickerVariant.Static" Orientation="Orientation.Landscape" @bind-Time="StartAsTimeSpan" Color="Color.Secondary"/>
+            </div>
+            <div>
+                <label>End Zeit</label>
+                <MudTimePicker Label="End Zeit" PickerVariant="PickerVariant.Static" Orientation="Orientation.Landscape" @bind-Time="EndAsTimeSpan" Color="Color.Tertiary"/>
+            </div>
+        </div>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Abbrechen</MudButton>
+        <MudButton Color="@Color" Variant="Variant.Filled" OnClick="Submit">@ButtonText</MudButton>
+    </DialogActions>
+</MudDialog>
+
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    
+    [Parameter] public MyTimeModel TimeModel { get; set; }
+
+    [Parameter] public string ButtonText { get; set; }
+
+    [Parameter] public Color Color { get; set; }
+    
+    public TimeSpan? StartAsTimeSpan
+    {
+        get => this.TimeModel.Start?.ToTimeSpan();
+        set => this.TimeModel.Start = value.HasValue ? TimeOnly.FromTimeSpan(value.Value) : (TimeOnly?)null;
+    }
+    
+    public TimeSpan? EndAsTimeSpan
+    {
+        get => this.TimeModel.End?.ToTimeSpan();
+        set => this.TimeModel.End = value.HasValue ? TimeOnly.FromTimeSpan(value.Value) : (TimeOnly?)null;
+    }
+    
+    void Submit() => MudDialog.Close(DialogResult.Ok(this.TimeModel));
+    void Cancel() => MudDialog.Cancel();
+}

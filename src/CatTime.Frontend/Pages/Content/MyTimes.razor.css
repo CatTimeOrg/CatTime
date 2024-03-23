@@ -1,4 +1,4 @@
-﻿.content-container {
+.my-times-container {
     display: grid;
     
     grid-template-rows: 4rem 1fr;
@@ -9,23 +9,18 @@
     height: 100vh;
 }
 
-.header-area {
+.current-running-time {
     grid-area: header;
-    /*background-color: darkseagreen;*/
     
     display: flex;
     align-items: center;
     gap: 1rem;
 }
 
-.content-area {
+.my-times-content-area {
     grid-area: content;
-    /*background-color: cornflowerblue;*/
 }
 
-::deep .running-time {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
+.my-time-date-filter .filter-area {
+    width: 41rem;
 }
