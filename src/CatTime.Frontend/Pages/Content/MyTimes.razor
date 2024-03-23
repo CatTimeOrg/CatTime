@@ -35,8 +35,8 @@
             </HeaderContent>
             <RowTemplate>
                 <MudTd DataLabel="Tag">@(context.Date.HasValue ? context.Date.Value.ToString("ddd, dd MMMM yyyy") : string.Empty)</MudTd>
-                <MudTd DataLabel="Start Uhrzeit">@(context.StartWorkTime.HasValue ? context.StartWorkTime.Value.ToString("HH:mm") : string.Empty)</MudTd>
-                <MudTd DataLabel="End Uhrzeit">@(context.EndWorkTime.HasValue ? context.EndWorkTime.Value.ToString("HH:mm") : string.Empty)</MudTd>
+                <MudTd DataLabel="Start Uhrzeit">@(context.Start.HasValue ? context.Start.Value.ToString("HH:mm") : string.Empty)</MudTd>
+                <MudTd DataLabel="End Uhrzeit">@(context.End.HasValue ? context.End.Value.ToString("HH:mm") : string.Empty)</MudTd>
                 <MudTd DataLabel="Zeit">@context.TotalWorkingTime</MudTd>
                 <MudTd>
                     <div class="d-flex gap-4">
@@ -55,40 +55,51 @@
     private DateTime _currentTime;
     private DateTime? _startDate;
     private DateTime? _endDate = DateTime.Now;
-    
+
     protected override void OnInitialized()
     {
         var timer = new Timer(1000);
         timer.Elapsed += UpdateTime;
         timer.Start();
-        
+
         var random = new Random();
         for (int i = 0; i < 10; i++)
         {
             var date = DateTime.Now.AddDays(-i);
-            var startWorkTime = date.AddHours(random.Next(7, 9)); // Random start time between 7 and 9
+            var startWorkTime = TimeOnly.FromDateTime(date.AddHours(random.Next(7, 9))); // Random start time between 7 and 9
             var endWorkTime = startWorkTime.AddHours(8); // 8 hours later
-            var totalWorkingTime = (endWorkTime - startWorkTime).ToString();
 
             _myTimes.Add(new MyTimeModel
             {
                 Date = date,
-                StartWorkTime = startWorkTime,
-                EndWorkTime = endWorkTime,
-                TotalWorkingTime = totalWorkingTime
+                Start = startWorkTime,
+                End = endWorkTime
             });
         }
     }
-    
+
     private void UpdateTime(object sender, ElapsedEventArgs e)
     {
         _currentTime = DateTime.Now;
         InvokeAsync(StateHasChanged);
     }
 
-    private void EditWorkTime(MyTimeModel myTime)
+    private async Task EditWorkTime(MyTimeModel myTime)
     {
+        var parameters = new DialogParameters<EditMyTime>();
+        parameters.Add(x => x.TimeModel, myTime);
+        parameters.Add(x => x.ButtonText, "Speichern");
+        parameters.Add(x => x.Color, Color.Primary);
         
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Medium };
+        
+        var result = await DialogService.Show<EditMyTime>("Bearbeiten", parameters, options).Result;
+        
+        if (result.Canceled is false)
+        {
+            var index = this._myTimes.FindIndex(x => x.Date == myTime.Date);
+            this._myTimes[index] = (MyTimeModel)result.Data;
+        }
     }
 
     private async Task DeleteWorkTime(MyTimeModel myTime)

@@ -16,8 +16,8 @@
             <div class="running-time-type my-3">
                 <MudToggleGroup T="string" Outline="true" Delimiters="true" Dense="true" CheckMark="true">
                     <MudToggleItem Text="Office" Value="@("One")" />
-                    <MudToggleItem Text="Home-Office" Value="@("Three")"/>
-                    <MudToggleItem Text="Reise/Dienste" Value="@("Two")"/>
+                    <MudToggleItem Text="Home-Office" Value="@("Three")" />
+                    <MudToggleItem Text="Reise/Dienste" Value="@("Two")" />
                 </MudToggleGroup>
             </div>
             <div class="running-time my-3">
@@ -27,7 +27,8 @@
             </div>
             <div class="time-actions my-3">
                 <MudButton Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Pause" Color="Color.Secondary" FullWidth="true" Class="mb-3">Pause (8 Minuten) starten</MudButton>
-                <MudButton Variant="Variant.Outlined" StartIcon="@Icons.Material.Outlined.Sick"FullWidth="true">Krank melden</MudButton>
+                <MudButton Variant="Variant.Outlined" StartIcon="@Icons.Material.Outlined.Sick" FullWidth="true" Class="mb-3">Krank melden</MudButton>
+                <MudButton Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.CalendarMonth" Color="Color.Info" FullWidth="true">Urlaub beantragen</MudButton>
             </div>
         </MudPaper>
     </div>
