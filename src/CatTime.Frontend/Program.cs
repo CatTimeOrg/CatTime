@@ -21,6 +21,9 @@ builder.Services
 // LocalStorage
 builder.Services.AddSingleton<LocalStorageService>();
 
+// ClientService
+builder.Services.AddScoped<ClientService>();
+
 // Auth
 builder.Services.AddAuthorizationCore();
 builder.Services.AddCascadingAuthenticationState();
