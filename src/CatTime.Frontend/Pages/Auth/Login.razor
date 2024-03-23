@@ -15,17 +15,21 @@
 <div class="login-container">
     <div class="login-card">
         <div class="image-container">
+            <img src="images/logocat.jpeg" width="300px"/>
         </div>
         <EditForm Model="@_model" OnValidSubmit="SignInUserAsync" class="form-container">
             <div class="login-form-container">
-                <MudText Typo="Typo.h6">CatTime</MudText>
-                <MudTextField @bind-Value="_model.Email" Label="E-Mail Adresse" For="@(() => _model.Email)"/>
-                <MudTextField @bind-Value="_model.Password" Label="Passwort" For="@(() => _model.Password)" InputType="InputType.Password" />
-                
-                <div class="register-link">
-                    <span>Noch keinen Account? <MudLink Href="/register" Typo="Typo.body2">Jetzt registrieren!</MudLink></span>
-                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="submit-button">Anmelden</MudButton>
+                <div class="login-form-title">
+                    <MudText Typo="Typo.h3">CatTime</MudText>
                 </div>
+                <div class="login-form-fields">
+                    <MudTextField @bind-Value="_model.Email" Label="E-Mail Adresse" For="@(() => _model.Email)"/>
+                    <MudTextField @bind-Value="_model.Password" Label="Passwort" For="@(() => _model.Password)" InputType="InputType.Password"/>
+                </div>
+                <div class="login-action">
+                    <span>Noch keinen Account?<MudLink Href="/register" Typo="Typo.body2">Jetzt registrieren!</MudLink></span>
+                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="submit-button">Anmelden</MudButton>
+                </div>    
             </div>
         </EditForm>
     </div>
