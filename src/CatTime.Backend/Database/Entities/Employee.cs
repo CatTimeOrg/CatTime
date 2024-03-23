@@ -15,5 +15,18 @@ public class Employee : BaseEntity
     public string PasswordHash { get; set; }
 
     public EmployeeRole Role { get; set; }
+
+    public EmployeeDTO ToDTO()
+    {
+        return new EmployeeDTO
+        {
+            Id = this.Id,
+            CompanyId = this.Company.Id,
+            FirstName = this.FirstName,
+            LastName = this.LastName,
+            EmailAddress = this.EmailAddress,
+            Role = this.Role
+        };
+    }
 }
 
