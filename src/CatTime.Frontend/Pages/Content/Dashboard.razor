@@ -1,15 +1,47 @@
 ﻿@page "/dashboard"
 
+@using System.Timers
+
 <div class="content-container">
     <div class="header-area">
         <MudAvatar Color="Color.Primary" Variant="Variant.Outlined" Size="Size.Medium">E</MudAvatar>
         <MudText Typo="Typo.h5">Willkommen Ena</MudText>
     </div>
     <div class="content-area">
-        <MudPaper Class="pa-16 ma-2"></MudPaper>
+        <MudPaper Class="pa-3" Width="30rem" Height="fit-content" Elevation="1">
+            <div class="running-time-type my-3">
+                <MudToggleGroup T="string" Outline="true" Delimiters="true" Dense="true" CheckMark="true">
+                    <MudToggleItem Text="Office" Value="@("One")" />
+                    <MudToggleItem Text="Home-Office" Value="@("Three")"/>
+                    <MudToggleItem Text="Reise/Dienste" Value="@("Two")"/>
+                </MudToggleGroup>
+            </div>
+            <div class="running-time my-3">
+                <MudText Typo="Typo.h4">@_currentTime.ToString("HH:mm:ss")</MudText>
+                <MudButton Variant="Variant.Outlined" FullWidth="true" StartIcon="@Icons.Material.Filled.PlayArrow" Color="Color.Tertiary" Disabled="true">Starten</MudButton>
+                <MudButton Variant="Variant.Outlined" FullWidth="true" StartIcon="@Icons.Material.Filled.Stop" Color="Color.Error">Stoppen</MudButton>
+            </div>
+            <div class="time-actions my-3">
+                <MudButton Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Pause" Color="Color.Secondary" FullWidth="true" Class="mb-3">Pause (8 Minuten) starten</MudButton>
+                <MudButton Variant="Variant.Outlined" StartIcon="@Icons.Material.Outlined.Sick"FullWidth="true">Krank melden</MudButton>
+            </div>
+        </MudPaper>
     </div>
 </div>
 
 @code {
+    private DateTime _currentTime;
 
+    protected override void OnInitialized()
+    {
+        var timer = new Timer(1000);
+        timer.Elapsed += UpdateTime;
+        timer.Start();
+    }
+
+    private void UpdateTime(object sender, ElapsedEventArgs e)
+    {
+        _currentTime = DateTime.Now;
+        InvokeAsync(StateHasChanged);
+    }
 }

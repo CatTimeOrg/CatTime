@@ -11,7 +11,7 @@
 
 .header-area {
     grid-area: header;
-    background-color: darkseagreen;
+    /*background-color: darkseagreen;*/
     
     display: flex;
     align-items: center;
@@ -20,5 +20,12 @@
 
 .content-area {
     grid-area: content;
-    background-color: cornflowerblue;
+    /*background-color: cornflowerblue;*/
+}
+
+::deep .running-time {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
 }
