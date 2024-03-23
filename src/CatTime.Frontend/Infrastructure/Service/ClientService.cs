@@ -62,12 +62,12 @@ namespace CatTime.Frontend.Infrastructure.Service
             response.EnsureSuccessStatusCode();
         }
 
-        public async Task<List<ClaimDTO>> Me()
+        public async Task<EmployeeDTO> Me()
         {
             var response = await this._httpClient.GetAsync("/auth/me");
             response.EnsureSuccessStatusCode();
             
-            return await response.Content.ReadFromJsonAsync<List<ClaimDTO>>();
+            return await response.Content.ReadFromJsonAsync<EmployeeDTO>();
         }
 
         public async Task<CompanyDTO> GetCompany()

@@ -7,10 +7,12 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
     private const string LocalStorageKey = "authToken";
 
     private readonly LocalStorageService _localStorageService;
+    private readonly ClientService _clientService;
 
-    public CustomAuthenticationStateProvider(LocalStorageService localStorageService)
+    public CustomAuthenticationStateProvider(LocalStorageService localStorageService, ClientService clientService)
     {
         _localStorageService = localStorageService;
+        _clientService = clientService;
     }
 
     public async Task<string> GetTokenAsync() => await _localStorageService.GetItemAsync<string>(LocalStorageKey);
@@ -32,9 +34,22 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
         var token = await GetTokenAsync();
-        var identity = string.IsNullOrEmpty(token)
-            ? new ClaimsIdentity()
-            : new ClaimsIdentity(token);
+
+        if (string.IsNullOrWhiteSpace(token))
+            return new AuthenticationState(new ClaimsPrincipal());
+
+        this._clientService.SetAccessToken(token);
+
+        var me = await this._clientService.Me();
+
+        var claims = new[]
+        {
+            new Claim(ClaimTypes.NameIdentifier, me.Id.ToString()),
+            new Claim(ClaimTypes.Email, me.EmailAddress),
+            new Claim(ClaimTypes.GivenName, me.FirstName),
+            new Claim(ClaimTypes.Surname, me.LastName),
+        };
+        var identity = new ClaimsIdentity(claims, "CatTime.Backend");
 
         return new AuthenticationState(new ClaimsPrincipal(identity));
     }
