@@ -18,12 +18,19 @@ public static class EmployeeRoutes
         var group = builder.MapGroup("/employees");
         group.RequireAuthorization();
 
-        group.MapGet("/", async (CatContext catContext, HttpContext httpContext) =>
+        group.MapGet("/all", async (CatContext catContext, HttpContext httpContext) =>
         {
             var employees = await catContext.Employees.ToListAsync();
 
             return employees.Select(e => e.ToDTO()).ToList();
         });
+
+        group.MapGet("/", async (CatContext catContext, HttpContext httpContext) =>
+        {
+            var employees = await catContext.Employees.Where(e => e.IsActive == true).ToListAsync();
+
+            return employees.Select(e => e.ToDTO()).ToList();
+        });        
 
         group.MapPost("/", async (CreateEmployeeRequest request, CatContext catContext, HttpContext httpContext) =>
         {
@@ -46,7 +53,8 @@ public static class EmployeeRoutes
                 LastName = request.LastName,
                 EmailAddress = request.EmailAddress,
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
-                Role = request.Role
+                Role = request.Role,
+                IsActive = true
             };
 
             await catContext.Employees.AddAsync(newEmployee);
@@ -87,11 +95,12 @@ public static class EmployeeRoutes
                 return Results.Problem($"Es wurde kein Mitarbeiter für Id:{id} gefunden", statusCode: StatusCodes.Status400BadRequest);
             }
 
-            employee.FirstName = request.FirstName != null ? request.FirstName : employee.PasswordHash;
-            employee.LastName = request.LastName != null ? request.LastName : employee.PasswordHash;
-            employee.EmailAddress = request.EmailAddress != null ? request.EmailAddress : employee.PasswordHash;
+            employee.FirstName = request.FirstName != null ? request.FirstName : employee.FirstName;
+            employee.LastName = request.LastName != null ? request.LastName : employee.LastName;
+            employee.EmailAddress = request.EmailAddress != null ? request.EmailAddress : employee.EmailAddress;
             employee.PasswordHash = request.Password != null ? BCrypt.Net.BCrypt.HashPassword(request.Password) : employee.PasswordHash;
             employee.Role = request.Role.HasValue ? request.Role.Value : employee.Role;
+            employee.IsActive = request.IsActive.HasValue ? request.IsActive.Value : employee.IsActive;
 
             await catContext.SaveChangesAsync();
 

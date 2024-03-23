@@ -16,6 +16,8 @@ public class Employee : BaseEntity
 
     public EmployeeRole Role { get; set; }
 
+    public bool IsActive { get; set; }
+
     public EmployeeDTO ToDTO()
     {
         return new EmployeeDTO
@@ -25,7 +27,8 @@ public class Employee : BaseEntity
             FirstName = this.FirstName,
             LastName = this.LastName,
             EmailAddress = this.EmailAddress,
-            Role = this.Role
+            Role = this.Role,
+            IsActive = this.IsActive
         };
     }
 }

@@ -11,4 +11,6 @@ public class EmployeeDTO : BaseEntity
     public string EmailAddress { get; set; }
 
     public EmployeeRole Role { get; set; }
+
+    public bool IsActive { get; set; }
 }
