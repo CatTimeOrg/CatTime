@@ -1,0 +1,108 @@
+﻿@page "/my-times"
+
+@using CatTime.Frontend.Pages.Content.Models
+@using System.Timers
+@using CatTime.Frontend.Pages.Content.Dialogs
+
+@inject IDialogService DialogService;
+
+<div class="my-times-container pa-4">
+    <div class="current-running-time">
+        <MudAvatar Color="Color.Primary" Variant="Variant.Outlined" Size="Size.Medium">EJ</MudAvatar>
+         <div class="running-time d-flex gap-3">
+            <MudText Typo="Typo.h4">@_currentTime.ToString("HH:mm:ss")</MudText>
+            <MudButton Variant="Variant.Outlined" FullWidth="true" Size="Size.Medium" StartIcon="@Icons.Material.Filled.PlayArrow" Color="Color.Tertiary" Disabled="true">Starten</MudButton>
+            <MudButton Variant="Variant.Outlined" FullWidth="true" Size="Size.Medium" StartIcon="@Icons.Material.Filled.Stop" Color="Color.Error">Stoppen</MudButton>
+        </div>
+    </div>
+    <div class="my-times-content-area">
+        <div class="my-times-filter">
+            <div class="my-time-date-filter d-flex justify-start align-end gap-4">
+                <div class="filter-area d-flex gap-4">
+                    <MudDatePicker Label="Startdatum" @bind-Date="_startDate" DateFormat="dd.MM.yyyy" ShowWeekNumbers="true"/>
+                    <MudDatePicker Label="Enddatum" @bind-Date="_endDate" DateFormat="dd.MM.yyyy" ShowWeekNumbers="true"/>
+                </div>
+                <MudIcon Icon="@Icons.Material.Filled.Sync" Color="Color.Primary" Style="cursor: pointer; margin-bottom: .3rem;"></MudIcon>
+            </div>
+        </div>
+        <MudTable Items="@_myTimes" Hover="true" Loading="@_loading" LoadingProgressColor="Color.Primary">
+            <HeaderContent>
+                <MudTh>Tag</MudTh>
+                <MudTh>Start Uhrzeit</MudTh>
+                <MudTh>End Uhrzeit</MudTh>
+                <MudTh>Zeit</MudTh>
+                <MudTh></MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Tag">@(context.Date.HasValue ? context.Date.Value.ToString("ddd, dd MMMM yyyy") : string.Empty)</MudTd>
+                <MudTd DataLabel="Start Uhrzeit">@(context.StartWorkTime.HasValue ? context.StartWorkTime.Value.ToString("HH:mm") : string.Empty)</MudTd>
+                <MudTd DataLabel="End Uhrzeit">@(context.EndWorkTime.HasValue ? context.EndWorkTime.Value.ToString("HH:mm") : string.Empty)</MudTd>
+                <MudTd DataLabel="Zeit">@context.TotalWorkingTime</MudTd>
+                <MudTd>
+                    <div class="d-flex gap-4">
+                        <MudIcon Icon="@Icons.Material.Filled.Edit" Color="Color.Primary" Style="cursor: pointer; margin-bottom: .3rem;" @onclick="@(() => EditWorkTime(@context))"></MudIcon>
+                        <MudIcon Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Style="cursor: pointer; margin-bottom: .3rem;" @onclick="@(() => DeleteWorkTime(@context))"></MudIcon>
+                    </div>
+                </MudTd>
+            </RowTemplate>
+        </MudTable>
+    </div>
+</div>
+
+@code {
+    private List<MyTimeModel> _myTimes { get; set; } = new();
+    private bool _loading = true;
+    private DateTime _currentTime;
+    private DateTime? _startDate;
+    private DateTime? _endDate = DateTime.Now;
+    
+    protected override void OnInitialized()
+    {
+        var timer = new Timer(1000);
+        timer.Elapsed += UpdateTime;
+        timer.Start();
+        
+        var random = new Random();
+        for (int i = 0; i < 10; i++)
+        {
+            var date = DateTime.Now.AddDays(-i);
+            var startWorkTime = date.AddHours(random.Next(7, 9)); // Random start time between 7 and 9
+            var endWorkTime = startWorkTime.AddHours(8); // 8 hours later
+            var totalWorkingTime = (endWorkTime - startWorkTime).ToString();
+
+            _myTimes.Add(new MyTimeModel
+            {
+                Date = date,
+                StartWorkTime = startWorkTime,
+                EndWorkTime = endWorkTime,
+                TotalWorkingTime = totalWorkingTime
+            });
+        }
+    }
+    
+    private void UpdateTime(object sender, ElapsedEventArgs e)
+    {
+        _currentTime = DateTime.Now;
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void EditWorkTime(MyTimeModel myTime)
+    {
+        
+    }
+
+    private async Task DeleteWorkTime(MyTimeModel myTime)
+    {
+        var parameters = new DialogParameters<DeleteMyTime>();
+        parameters.Add(x => x.ContentText, "Möchten Sie diesen Eintrag wirklich löschen?");
+        parameters.Add(x => x.ButtonText, "Löschen");
+        parameters.Add(x => x.Color, Color.Error);
+
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+
+        var result = await DialogService.Show<DeleteMyTime>($"Eintrag für den {myTime.Date.Value.ToString("ddd, dd.MM.yyyy")}", parameters, options).Result;
+        
+        if (result.Canceled is false )
+            this._myTimes.Remove(myTime);
+    }
+}

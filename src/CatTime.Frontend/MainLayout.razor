@@ -16,8 +16,8 @@
             <MudDrawerContainer Class="mud-height-full">
                 <MudDrawer @bind-Open="@_open" Height="100vh" Fixed="false" Elevation="1" Variant="@DrawerVariant.Mini" OpenMiniOnHover="true">
                     <MudNavMenu Style="height: 100%;">
-                        <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">Dashboard</MudNavLink>
-                        <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Timer">Meine Zeiten</MudNavLink>
+                        <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home" OnClick="ToDashboard">Dashboard</MudNavLink>
+                        <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.ManageHistory" OnClick="ToMyTimes">Meine Zeiten</MudNavLink>
                         <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.EditCalendar">Urlaub</MudNavLink>
                         <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Logout" OnClick="Logout">Logout</MudNavLink>
                     </MudNavMenu>
@@ -37,11 +37,13 @@
 @code
 {
     private bool _open = false;
+    
+    private void ToDashboard() => this.NavigationManager.NavigateTo("/dashboard");
+    private void ToMyTimes() => this.NavigationManager.NavigateTo("/my-times");
 
     private async void Logout()
     {
         await AuthStateProvider.SetTokenAsync(null);
-
         this.NavigationManager.NavigateTo("/login");
     }
 }
