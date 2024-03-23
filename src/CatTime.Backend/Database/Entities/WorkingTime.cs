@@ -4,7 +4,10 @@ namespace CatTime.Backend.Database.Entities;
 
 public class WorkingTime : BaseEntity
 {
+    public int CompanyId { get; set; }
     public Company Company { get; set; }
+
+    public int EmployeeId { get; set; }
     public Employee Employee { get; set; }
 
     public DateOnly Date { get; set; }
