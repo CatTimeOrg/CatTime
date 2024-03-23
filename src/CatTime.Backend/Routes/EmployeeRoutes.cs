@@ -97,5 +97,20 @@ public static class EmployeeRoutes
 
             return Results.Ok(employee.ToDTO());
         });
+
+        group.MapPost("/actions/change-password", async (ChangePasswordRequest request, CatContext catContext, HttpContext httpContext) =>
+        {
+            var currentEmployee = await catContext.Employees.FindAsync(httpContext.User.GetEmployeeId()) ?? throw new SomethingFishyException();
+            if (BCrypt.Net.BCrypt.Verify(request.CurrentPassword, currentEmployee.PasswordHash) is false)
+            {
+                return Results.Problem("Das angegebene aktuelle Passwort ist falsch.", statusCode: StatusCodes.Status400BadRequest);
+            }
+
+            currentEmployee.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
+
+            await catContext.SaveChangesAsync();
+
+            return Results.Ok();
+        });
     }
 }
