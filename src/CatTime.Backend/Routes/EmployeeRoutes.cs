@@ -18,16 +18,11 @@ public static class EmployeeRoutes
         var group = builder.MapGroup("/employees");
         group.RequireAuthorization();
 
-        group.MapGet("/all", async (CatContext catContext, HttpContext httpContext) =>
+        group.MapGet("/", async (bool? showInactive, CatContext catContext, HttpContext httpContext) =>
         {
-            var employees = await catContext.Employees.ToListAsync();
-
-            return employees.Select(e => e.ToDTO()).ToList();
-        });
-
-        group.MapGet("/", async (CatContext catContext, HttpContext httpContext) =>
-        {
-            var employees = await catContext.Employees.Where(e => e.IsActive == true).ToListAsync();
+            var employees = showInactive.HasValue && showInactive.Value == true
+                ? await catContext.Employees.ToListAsync()
+                : await catContext.Employees.Where(e => e.IsActive == true).ToListAsync();
 
             return employees.Select(e => e.ToDTO()).ToList();
         });        
