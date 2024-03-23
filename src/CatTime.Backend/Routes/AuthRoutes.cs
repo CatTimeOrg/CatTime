@@ -70,6 +70,7 @@ public static class AuthRoutes
                 CompanyId = company.Id,
                 Company = company,
                 Role = EmployeeRole.Admin,
+                IsActive = true,
             };
             await catContext.Employees.AddAsync(employee);
 
