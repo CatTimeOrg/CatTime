@@ -67,6 +67,7 @@ public static class AuthRoutes
                 EmailAddress = request.EmailAddress,
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
 
+                CompanyId = company.Id,
                 Company = company,
                 Role = EmployeeRole.Admin,
             };
