@@ -204,7 +204,7 @@ public static class WorkingTimeRoutes
             return Results.Ok(workingTimeEntity.ToDTO());
         });
         
-        group.MapPost("/actions/checkout", async (CatContext catContext, HttpContext httpContext) =>
+        group.MapGet("/actions/checkout", async (CatContext catContext, HttpContext httpContext) =>
         {
             var employee = await catContext.Employees.FindAsync(httpContext.User.GetEmployeeId());
             
