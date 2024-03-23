@@ -8,10 +8,9 @@
 .login-card {
     display: grid;
 
-    grid-template-columns: 30rem 30rem;
+    grid-template-columns: 20rem 30rem;
     grid-template-areas: 
         "image form";
-    gap: 1rem;
     padding: 1rem;
     border-radius: 12px;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19); /* Add this line */
@@ -19,7 +18,6 @@
 
 .image-container {
     grid-area: image;
-    background-color: pink;
 }
 
 .form-container {
@@ -28,9 +26,45 @@
 }
 
 .register-link {
-    display: flex;
     justify-content: space-between;
     align-items: center;
     margin-top: 1rem;
+    
+    
 }
+
+
+::deep .submit-button {
+    float: right;
+    width: fit-content;
+    align-self: end;
+}
+
+::deep .login-form-container {
+    display: grid;
+
+    grid-template-rows: 3rem auto 2rem;
+    grid-template: "title"
+                   "fields"
+                   "action";
+    height: 100%;
+    gap: 1rem;
+}
+
+::deep .login-form-title {
+    grid-area: title;
+}
+
+::deep .login-form-fields {
+    grid-area: fields;
+}
+
+::deep .login-action {
+    grid-area: action;
+    display: flex;
+    flex-direction: column;
+}
+
+
+
 
