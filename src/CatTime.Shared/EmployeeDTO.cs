@@ -10,7 +10,5 @@ public class EmployeeDTO : BaseEntity
 
     public string EmailAddress { get; set; }
 
-    public string PasswordHash { get; set; }
-
     public EmployeeRole Role { get; set; }
 }
