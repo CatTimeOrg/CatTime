@@ -32,10 +32,10 @@ public static class WorkingTimeRoutes
             var actualTo = to ?? new DateOnly(DateTime.Today.Year, DateTime.Today.Month, DateTime.DaysInMonth(DateTime.Today.Year, DateTime.Today.Month));
             
             var workingTimes = await catContext.WorkingTimes
-                .Where(w => w.EmployeeId == targetEmployee.Id && w.Date >= actualFrom && w.Date <= actualTo)
+                .Where(f => f.EmployeeId == targetEmployee.Id && f.Date >= actualFrom && f.Date <= actualTo)
                 .ToListAsync();
             
-            return Results.Ok(workingTimes.Select(w => w.ToDTO()));
+            return Results.Ok(workingTimes.Select(f => f.ToDTO()));
         });
 
         group.MapPost("/", async (CreateWorkingTimeRequest request, CatContext catContext, HttpContext httpContext) =>
@@ -152,6 +152,79 @@ public static class WorkingTimeRoutes
             await catContext.SaveChangesAsync();
 
             return Results.Ok();
+        });
+        
+        group.MapGet("/current", async (CatContext catContext, HttpContext httpContext) =>
+        {
+            var employee = await catContext.Employees.FindAsync(httpContext.User.GetEmployeeId());
+            
+            var lastWorkingTime = await catContext.WorkingTimes
+                .Where(f => f.EmployeeId == employee.Id)
+                .WhereIsRecentWorkingTime()
+                .OrderByDescending(f => f.Date)
+                .ThenByDescending(f => f.Start)
+                .FirstOrDefaultAsync();
+
+            if (lastWorkingTime is null)
+                return Results.NotFound();
+            
+            return Results.Ok(lastWorkingTime.ToDTO());
+        });
+        
+        group.MapPost("/actions/checkin", async (CheckinRequest request, CatContext catContext, HttpContext httpContext) =>
+        {
+            var employee = await catContext.Employees.FindAsync(httpContext.User.GetEmployeeId());
+            
+            var lastWorkingTime = await catContext.WorkingTimes
+                .Where(f => f.EmployeeId == employee.Id)
+                .WhereIsRecentWorkingTime()
+                .OrderByDescending(f => f.Date)
+                .ThenByDescending(f => f.Start)
+                .FirstOrDefaultAsync();
+            
+            if (lastWorkingTime is not null && lastWorkingTime.End is null)
+            {
+                return Results.Problem("Es wurde bereits eingecheckt.", statusCode: StatusCodes.Status400BadRequest);
+            }
+            
+            var workingTimeEntity = new WorkingTime
+            {
+                EmployeeId = employee.Id,
+                CompanyId = employee.CompanyId,
+                
+                Date = DateOnly.FromDateTime(DateTime.Today),
+                Start = TimeOnly.FromDateTime(DateTime.Now),
+                
+                Type = request.Type,
+            };
+            
+            await catContext.WorkingTimes.AddAsync(workingTimeEntity);
+            await catContext.SaveChangesAsync();
+            
+            return Results.Ok(workingTimeEntity.ToDTO());
+        });
+        
+        group.MapPost("/actions/checkout", async (CatContext catContext, HttpContext httpContext) =>
+        {
+            var employee = await catContext.Employees.FindAsync(httpContext.User.GetEmployeeId());
+            
+            var lastWorkingTime = await catContext.WorkingTimes
+                .Where(f => f.EmployeeId == employee.Id)
+                .WhereIsRecentWorkingTime()
+                .OrderByDescending(f => f.Date)
+                .ThenByDescending(f => f.Start)
+                .FirstOrDefaultAsync();
+            
+            if (lastWorkingTime is null || lastWorkingTime.End is not null)
+            {
+                return Results.Problem("Es wurde noch nicht eingecheckt.", statusCode: StatusCodes.Status400BadRequest);
+            }
+            
+            lastWorkingTime.End = TimeOnly.FromDateTime(DateTime.Now);
+            
+            await catContext.SaveChangesAsync();
+            
+            return Results.Ok(lastWorkingTime.ToDTO());
         });
     }
 }
