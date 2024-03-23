@@ -96,11 +96,12 @@ public static class AuthRoutes
             return Results.Ok();
         }).AllowAnonymous();
         
-        group.MapGet("/me", (HttpContext context) =>
+        group.MapGet("/me", async (CatContext catContext, HttpContext context) =>
         {
-            var claims = context.User.Claims.Select(c => new ClaimDTO { Type = c.Type, Value = c.Value }).ToList();
+            var employeeId = context.User.GetEmployeeId();
+            var employee = await catContext.Employees.FindAsync(employeeId);
 
-            return Results.Ok(claims);
+            return employee.ToDTO();
         });
     }
 
