@@ -2,7 +2,7 @@ using CatTime.Backend.Database;
 using CatTime.Backend.Database.Entities;
 using CatTime.Backend.Routes;
 using CatTime.Backend.Services;
-using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.BearerToken;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -21,7 +21,7 @@ static void ConfigureServices(IServiceCollection services, ConfigurationManager 
 {
     services.AddDbContext<CatContext>(o => o.UseNpgsql(config.GetConnectionString("Postgres")), ServiceLifetime.Scoped);
 
-    services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie();
+    services.AddAuthentication(BearerTokenDefaults.AuthenticationScheme).AddBearerToken();
     services.AddAuthorization();
     
     services.AddHttpContextAccessor();
