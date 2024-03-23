@@ -58,7 +58,7 @@ public static class EmployeeRoutes
         group.MapGet("/{id}", async (CatContext catContext, HttpContext httpContext, int id) =>
         {
             var employee = await catContext.Employees.FirstOrDefaultAsync(e => e.Id == id);
-            if(employee == null)
+            if (employee == null)
             {
                 return Results.Problem($"Es wurde kein Mitarbeiter für Id:{id} gefunden.", statusCode: StatusCodes.Status400BadRequest);
             }
@@ -66,6 +66,36 @@ public static class EmployeeRoutes
             return Results.Ok(employee.ToDTO());
         });
 
-        
+        group.MapPut("/{id}", async (UpdateEmployeeRequest updateEmployeeRequest, CatContext catContext, HttpContext httpContext, int id) =>
+        {
+            var currentEmployee = await catContext.Employees.FindAsync(httpContext.User.GetEmployeeId()) ?? throw new SomethingFishyException();
+            if (currentEmployee.Role != EmployeeRole.Admin)
+            {
+                return Results.Problem("Sie haben keine Berechtigung um Mitarbeiterdaten zu verändern.", statusCode: StatusCodes.Status403Forbidden);
+            }
+
+            // We ignore the query filters because the email must be unique in the whole database not only for the company. That is because of the login process.
+            var existingEmployees = await catContext.Employees.IgnoreQueryFilters().FirstOrDefaultAsync(e => e.EmailAddress == updateEmployeeRequest.EmailAddress && e.Id != id);
+            if(existingEmployees != null)
+            {
+                return Results.Problem("Die E-Mail-Adresse im Request ist bereits vergeben.", statusCode: StatusCodes.Status400BadRequest);
+            }
+
+            var employee = await catContext.Employees.FirstOrDefaultAsync(e => e.Id == id);
+            if (employee == null)
+            {
+                return Results.Problem($"Es wurde kein Mitarbeiter für Id:{id} gefunden", statusCode: StatusCodes.Status400BadRequest);
+            }
+
+            employee.FirstName = updateEmployeeRequest.FirstName;
+            employee.LastName = updateEmployeeRequest.LastName;
+            employee.EmailAddress = updateEmployeeRequest.EmailAddress;
+            employee.PasswordHash = BCrypt.Net.BCrypt.HashPassword(updateEmployeeRequest.Password);
+            employee.Role = updateEmployeeRequest.Role;
+
+            await catContext.SaveChangesAsync();
+
+            return Results.Ok(employee.ToDTO());
+        });
     }
 }
