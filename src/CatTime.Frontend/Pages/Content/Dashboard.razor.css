@@ -1,0 +1,18 @@
+﻿.content-container {
+    display: grid;
+    
+    grid-template-areas: 
+        "header"
+        "content";
+    padding: 1rem;
+}
+
+.header-area {
+    grid-area: header;
+    background-color: darkseagreen;
+}
+
+.content-area {
+    grid-area: content;
+    background-color: cornflowerblue;
+}

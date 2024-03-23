@@ -1,8 +1,7 @@
 ﻿@inherits LayoutComponentBase
 
-@using CatTime.Frontend.Pages
-@using CatTime.Frontend.Pages.Content
 @using Microsoft.AspNetCore.Components.Authorization
+@inject NavigationManager NavigationManager;
 
 <MudThemeProvider />
 <MudDialogProvider />
@@ -10,9 +9,30 @@
 
 <AuthorizeView>
     <Authorized>
-        @Body
+        <MudPaper Height="100vh" Style="overflow:hidden; position:relative;">
+            <MudDrawerContainer Class="mud-height-full">
+                <MudDrawer @bind-Open="@_open" Height="100vh" Fixed="false" Elevation="1" Variant="@DrawerVariant.Mini" OpenMiniOnHover="true">
+                    <MudNavMenu Style="height: 100%;">
+                        <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Store">Store</MudNavLink>
+                        <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.LibraryBooks">Library</MudNavLink>
+                        <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Group">Community</MudNavLink>
+                        <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Logout" OnClick="Logout">Logout</MudNavLink>
+                    </MudNavMenu>
+                </MudDrawer>
+                <div>
+                    @Body
+                </div>
+            </MudDrawerContainer>
+        </MudPaper>
     </Authorized>
     <NotAuthorized>
         <RedirectToLogin></RedirectToLogin>
     </NotAuthorized>
 </AuthorizeView>
+
+@code
+{ 
+    private bool _open = false;
+    
+    private void Logout() => this.NavigationManager.NavigateTo("/login");
+}
