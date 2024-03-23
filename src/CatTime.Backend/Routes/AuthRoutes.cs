@@ -1,10 +1,12 @@
 ﻿using System.Security.Claims;
 using CatTime.Backend.Database;
 using CatTime.Backend.Database.Entities;
+using CatTime.Backend.Extensions;
 using CatTime.Shared;
 using CatTime.Shared.Routes.Auth;
-using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.BearerToken;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace CatTime.Backend.Routes;
 
@@ -31,20 +33,35 @@ public static class AuthRoutes
                 return Results.Problem("E-Mail-Adresse oder Passwort ist ungültig.", statusCode: StatusCodes.Status400BadRequest);
             }
 
-            var identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme);
-            identity.AddClaim(new Claim("EmployeeId", employee.Id.ToString()));
-            identity.AddClaim(new Claim("CompanyId", employee.CompanyId.ToString()));
+            var principal = EmployeeToPrincipal(employee);
 
-            var principal = new ClaimsPrincipal(identity);
-
-            return Results.SignIn(principal, null, CookieAuthenticationDefaults.AuthenticationScheme);
+            return Results.SignIn(principal);
         }).AllowAnonymous();
 
-        group.MapGet("/logout", (HttpContext context) =>
+        group.MapPost("/refresh", async (RefreshRequest request, CatContext catContext, IOptionsMonitor<BearerTokenOptions> optionsMonitor) =>
         {
-            return Results.SignOut(null, [CookieAuthenticationDefaults.AuthenticationScheme]);
-        });
+            var options = optionsMonitor.Get(BearerTokenDefaults.AuthenticationScheme);
 
+            var ticket = options.RefreshTokenProtector.Unprotect(request.RefreshToken);
+            if (ticket?.Properties?.ExpiresUtc is not { } expiresUtc)
+            {
+                return Results.Problem("Ungültiges Refresh-Token.", statusCode: StatusCodes.Status400BadRequest);
+            }
+            
+            if (DateTime.UtcNow >= expiresUtc)
+            {
+                return Results.Problem("Refresh-Token ist abgelaufen.", statusCode: StatusCodes.Status400BadRequest);
+            }
+
+            var employeeId = ticket.Principal.GetEmployeeId();
+            var employee = await catContext.Employees.IgnoreQueryFilters().SingleAsync(f => f.Id == employeeId);
+
+            var principal = EmployeeToPrincipal(employee);
+
+            return Results.SignIn(principal);
+
+        }).AllowAnonymous();
+        
         group.MapPost("/register", async (RegisterRequest request, CatContext catContext) =>
         {
             var existingEmployee = await catContext.Employees.FirstOrDefaultAsync(e => e.EmailAddress == request.EmailAddress);
@@ -85,5 +102,15 @@ public static class AuthRoutes
 
             return Results.Ok(claims);
         });
+    }
+
+    private static ClaimsPrincipal EmployeeToPrincipal(Employee employee)
+    {
+        var identity = new ClaimsIdentity(BearerTokenDefaults.AuthenticationScheme);
+        identity.AddClaim(new Claim("EmployeeId", employee.Id.ToString()));
+        identity.AddClaim(new Claim("CompanyId", employee.CompanyId.ToString()));
+
+        var principal = new ClaimsPrincipal(identity);
+        return principal;
     }
 }
