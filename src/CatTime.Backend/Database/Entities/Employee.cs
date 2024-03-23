@@ -21,7 +21,7 @@ public class Employee : BaseEntity
         return new EmployeeDTO
         {
             Id = this.Id,
-            CompanyId = this.Company.Id,
+            CompanyId = this.CompanyId,
             FirstName = this.FirstName,
             LastName = this.LastName,
             EmailAddress = this.EmailAddress,
