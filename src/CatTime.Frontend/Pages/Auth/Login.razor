@@ -41,7 +41,7 @@
     /// <summary>
     /// If a Return URL is given, we will navigate there after login.
     /// </summary>
-    [SupplyParameterFromQuery(Name = "dashboard")]
+    [SupplyParameterFromQuery(Name = "returnUrl")]
     private string? ReturnUrl { get; set; }
 
     /// <summary>
@@ -65,13 +65,9 @@
         try
         {
 
-            var me = new EmployeeDTO
-            {
-                EmailAddress = _model.Email!
-            };
+            var guid = new Guid().ToString();
 
-
-            await AuthStateProvider.SetCurrentUserAsync(me);
+            await AuthStateProvider.SetTokenAsync(guid);
 
             var navigationUrl = GetNavigationUrl();
 
@@ -87,7 +83,7 @@
     {
         if (string.IsNullOrWhiteSpace(ReturnUrl))
         {
-            return "/";
+            return "/dashboard";
         }
 
         return ReturnUrl;
