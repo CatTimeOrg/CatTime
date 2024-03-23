@@ -1,8 +1,18 @@
 ﻿@inherits LayoutComponentBase
 
+@using CatTime.Frontend.Pages
+@using CatTime.Frontend.Pages.Content
+@using Microsoft.AspNetCore.Components.Authorization
 
 <MudThemeProvider />
 <MudDialogProvider />
 <MudSnackbarProvider />
 
-@Body
+<AuthorizeView>
+    <Authorized>
+        @Body
+    </Authorized>
+    <NotAuthorized>
+        <RedirectToLogin></RedirectToLogin>
+    </NotAuthorized>
+</AuthorizeView>
