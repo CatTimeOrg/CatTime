@@ -12,13 +12,13 @@ builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
 // HttpClient
-builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7143") });
+builder.Services.AddSingleton(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7143") });
 
 // LocalStorage
 builder.Services.AddSingleton<LocalStorageService>();
 
 // ClientService
-builder.Services.AddScoped<ClientService>();
+builder.Services.AddSingleton<ClientService>();
 
 // Auth
 builder.Services.AddAuthorizationCore();

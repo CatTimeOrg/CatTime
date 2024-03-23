@@ -68,13 +68,8 @@
         try
         {
             var loginResult = await this.ClientService.Login(_model.Email, _model.Password);
-            this.ClientService.SetAccessToken(loginResult.AccessToken);
 
-            var company = await this.ClientService.GetCompany();
-
-            var guid = new Guid().ToString();
-
-            await AuthStateProvider.SetTokenAsync(guid);
+            await AuthStateProvider.SetTokenAsync(loginResult.AccessToken);
 
             var navigationUrl = GetNavigationUrl();
 
