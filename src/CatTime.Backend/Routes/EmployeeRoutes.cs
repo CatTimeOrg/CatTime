@@ -57,7 +57,7 @@ public static class EmployeeRoutes
 
         group.MapGet("/{id}", async (CatContext catContext, HttpContext httpContext, int id) =>
         {
-            var employee = await catContext.Employees.FirstOrDefaultAsync(e => e.Id == id);
+            var employee = await catContext.Employees.FindAsync(id);
             if (employee == null)
             {
                 return Results.Problem($"Es wurde kein Mitarbeiter für Id:{id} gefunden.", statusCode: StatusCodes.Status400BadRequest);
@@ -81,7 +81,7 @@ public static class EmployeeRoutes
                 return Results.Problem("Die E-Mail-Adresse im Request ist bereits vergeben.", statusCode: StatusCodes.Status400BadRequest);
             }
 
-            var employee = await catContext.Employees.FirstOrDefaultAsync(e => e.Id == id);
+            var employee = await catContext.Employees.FindAsync(id);
             if (employee == null)
             {
                 return Results.Problem($"Es wurde kein Mitarbeiter für Id:{id} gefunden", statusCode: StatusCodes.Status400BadRequest);
