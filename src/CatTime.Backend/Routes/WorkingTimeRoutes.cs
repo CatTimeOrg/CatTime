@@ -27,15 +27,10 @@ public static class WorkingTimeRoutes
                 return Results.Problem("Nicht autorisiert Zeiten für einen anderen Mitarbeiter anzulegen.", statusCode: StatusCodes.Status400BadRequest);
             }
             
-            var company = await catContext.Companies.FindAsync(targetEmployee.CompanyId);
-            
             var workingTimeEntity = new WorkingTime
             {
                 EmployeeId = targetEmployee.Id,
-                Employee = targetEmployee,
-                
-                CompanyId = company.Id,
-                Company = company,
+                CompanyId = targetEmployee.CompanyId,
                 
                 Date = request.Date,
                 Start = request.Start,
