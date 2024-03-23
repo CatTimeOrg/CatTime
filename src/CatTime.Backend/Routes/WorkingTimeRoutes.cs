@@ -15,26 +15,26 @@ public static class WorkingTimeRoutes
 
         group.MapPost("/", async (CreateWorkingTimeRequest request, CatContext catContext, HttpContext httpContext) =>
         {
-            // Load Employee
-            var employeeId = request.EmployeeId ?? httpContext.User.GetEmployeeId();
-            var employee = catContext.Employees.Find(employeeId);
-            if (employee == null)
+            var targetEmployee = await catContext.Employees.FindAsync(request.EmployeeId ?? httpContext.User.GetEmployeeId());
+            if (targetEmployee is null)
             {
                 return Results.Problem("Mitarbeiter nicht gefunden.", statusCode: StatusCodes.Status400BadRequest);
             }
-            await catContext.Entry(employee).Reference(f => f.Company).LoadAsync();
             
-            // Check if employee is from same company
-            var companyId = httpContext.User.GetCompanyId();
-            if (employee.Company.Id != companyId)
+            var currentEmployee = await catContext.Employees.FindAsync(httpContext.User.GetEmployeeId());
+            if (currentEmployee != targetEmployee && currentEmployee.Role is not EmployeeRole.Admin)
             {
-                return Results.Problem("Mitarbeiter nicht gefunden.", statusCode: StatusCodes.Status400BadRequest);
+                return Results.Problem("Nicht autorisiert Zeiten für einen anderen Mitarbeiter anzulegen.", statusCode: StatusCodes.Status400BadRequest);
             }
-            var company = catContext.Companies.Find(companyId);
-
+            
+            var company = await catContext.Companies.FindAsync(targetEmployee.CompanyId);
+            
             var workingTimeEntity = new WorkingTime
             {
-                Employee = employee,
+                EmployeeId = targetEmployee.Id,
+                Employee = targetEmployee,
+                
+                CompanyId = company.Id,
                 Company = company,
                 
                 Date = request.Date,
@@ -47,20 +47,7 @@ public static class WorkingTimeRoutes
             await catContext.WorkingTimes.AddAsync(workingTimeEntity);
             await catContext.SaveChangesAsync();
             
-            var result = new WorkingTimeDTO
-            {
-                Id = workingTimeEntity.Id,
-                
-                EmployeeId = workingTimeEntity.Employee.Id,
-                CompanyId = workingTimeEntity.Company.Id,
-
-                Date = workingTimeEntity.Date,
-                Start = workingTimeEntity.Start,
-                End = workingTimeEntity.End,
-
-                Type = workingTimeEntity.Type,
-            };
-            return Results.Ok(result);
+            return Results.Ok(workingTimeEntity.ToDTO());
         });
     }
 }

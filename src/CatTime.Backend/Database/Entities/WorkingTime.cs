@@ -16,5 +16,19 @@ public class WorkingTime : BaseEntity
     public TimeOnly? End { get; set; }
 
     public WorkingTimeType Type { get; set; }
+
+    public WorkingTimeDTO ToDTO() => new()
+    {
+        Id = this.Id,
+
+        EmployeeId = this.EmployeeId,
+        CompanyId = this.CompanyId,
+
+        Date = this.Date,
+        Start = this.Start,
+        End = this.End,
+
+        Type = this.Type,
+    };
 }
 
