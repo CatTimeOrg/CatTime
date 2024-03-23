@@ -1,0 +1,26 @@
+﻿.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.login-card {
+    display: grid;
+
+    grid-template-columns: 30rem 30rem;
+    grid-template-areas: 
+        "image form";
+
+}
+
+.image-container {
+    grid-area: image;
+    background-color: pink;
+}
+
+.form-container {
+    grid-area: form;
+    background-color: lightblue;
+}
+

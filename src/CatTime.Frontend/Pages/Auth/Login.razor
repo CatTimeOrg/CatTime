@@ -6,20 +6,18 @@
 
 @inject NavigationManager NavigationManager;
 
-<div class="register-container">
-    <EditForm Model="@_model" OnValidSubmit="OnSubmit">
-        <div class="register-form-container">
-            <MudCard>
-                <MudCardContent>
-                    <MudTextField @bind-Value="_model.Email" Label="E-Mail Adresse" For="@(() => _model.Email)" />
-                    <MudTextField @bind-Value="_model.Password" Label="Passwort" For="@(() => _model.Password)" HelperText="Wählen Sie ein sicheres Passwort" />
-                </MudCardContent>
-                <MudCardActions>
-                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Registrieren</MudButton>
-                </MudCardActions>
-            </MudCard>
+<div class="login-container">
+    <div class="login-card">
+        <div class="image-container">
         </div>
-    </EditForm>
+        <EditForm Model="@_model" OnValidSubmit="OnSubmit" class="form-container">
+            <div class="login-form-container">
+                <MudTextField @bind-Value="_model.Email" Label="E-Mail Adresse" For="@(() => _model.Email)" />
+                <MudTextField @bind-Value="_model.Password" Label="Passwort" For="@(() => _model.Password)" HelperText="Wählen Sie ein sicheres Passwort" />
+                <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Registrieren</MudButton>
+            </div>
+        </EditForm>
+    </div>
 </div>
 
 @code {
