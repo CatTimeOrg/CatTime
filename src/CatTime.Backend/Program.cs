@@ -26,6 +26,8 @@ static void ConfigureServices(IServiceCollection services, ConfigurationManager 
     
     services.AddHttpContextAccessor();
     services.AddScoped<ITenantService, TenantService>();
+
+    services.AddCors(o => o.AddDefaultPolicy(p => p.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));
 }
 
 static void MigrateDatabase(IServiceProvider appServices)
@@ -40,6 +42,7 @@ static void MigrateDatabase(IServiceProvider appServices)
 static void ConfigurePipeline(IApplicationBuilder app)
 {
     app.UseHttpsRedirection();
+    app.UseCors();
 }
 
 static void ConfigureRoutes(IEndpointRouteBuilder routes)
