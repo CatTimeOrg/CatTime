@@ -40,17 +40,26 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
 
         this._clientService.SetAccessToken(token);
 
-        var me = await this._clientService.Me();
-
-        var claims = new[]
+        try
         {
-            new Claim(ClaimTypes.NameIdentifier, me.Id.ToString()),
-            new Claim(ClaimTypes.Email, me.EmailAddress),
-            new Claim(ClaimTypes.GivenName, me.FirstName),
-            new Claim(ClaimTypes.Surname, me.LastName),
-        };
-        var identity = new ClaimsIdentity(claims, "CatTime.Backend");
+            var me = await this._clientService.Me();
 
-        return new AuthenticationState(new ClaimsPrincipal(identity));
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, me.Id.ToString()),
+                new Claim(ClaimTypes.Email, me.EmailAddress),
+                new Claim(ClaimTypes.GivenName, me.FirstName),
+                new Claim(ClaimTypes.Surname, me.LastName),
+            };
+            var identity = new ClaimsIdentity(claims, "CatTime.Backend");
+
+            return new AuthenticationState(new ClaimsPrincipal(identity));
+        }
+        catch (Exception e)
+        {
+            // Something went wrong, token is probably invalid/expired
+            await this.SetTokenAsync(null);
+            return new AuthenticationState(new ClaimsPrincipal());
+        }
     }
 }
