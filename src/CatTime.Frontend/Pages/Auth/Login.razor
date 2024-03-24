@@ -69,7 +69,7 @@
         {
             var loginResult = await this.ClientService.Login(_model.Email, _model.Password);
 
-            await AuthStateProvider.SetTokenAsync(loginResult.AccessToken);
+            await AuthStateProvider.SetTokenAsync(loginResult);
 
             var navigationUrl = GetNavigationUrl();
 
