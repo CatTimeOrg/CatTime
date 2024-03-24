@@ -60,19 +60,19 @@ public partial class ClientService
         return await response.Content.ReadFromJsonAsync<CurrentTimeDTO>();
     }
 
-    public async Task<WorkingTimeDTO> CheckIn(CheckinRequest request)
+    public async Task<CurrentTimeDTO> CheckIn(CheckinRequest request)
     {
         var response = await this._httpClient.PostAsJsonAsync($"/workingtime/actions/checkin", request);
         response.EnsureSuccessStatusCode();
 
-        return await response.Content.ReadFromJsonAsync<WorkingTimeDTO>();
+        return await response.Content.ReadFromJsonAsync<CurrentTimeDTO>();
     }
 
-    public async Task<WorkingTimeDTO> CheckOut()
+    public async Task<CurrentTimeDTO> CheckOut()
     {
         var response = await this._httpClient.PostAsync($"/workingtime/actions/checkout", null);
         response.EnsureSuccessStatusCode();
 
-        return await response.Content.ReadFromJsonAsync<WorkingTimeDTO>();
+        return await response.Content.ReadFromJsonAsync<CurrentTimeDTO>();
     }
 }

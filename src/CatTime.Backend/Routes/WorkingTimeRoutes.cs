@@ -160,40 +160,7 @@ public static class WorkingTimeRoutes
             return Results.Ok();
         });
         
-        group.MapGet("/current", async (CatContext catContext, HttpContext httpContext) =>
-        {
-            var employee = await catContext.Employees.FindAsync(httpContext.User.GetEmployeeId()) ?? throw new SomethingFishyException();
-            
-            var todaysWorkingTimes = await catContext.WorkingTimes
-                .Where(f => f.EmployeeId == employee.Id)
-                .WhereIsRecentWorkingTime()
-                .OrderByDescending(f => f.Date)
-                .ThenByDescending(f => f.Start)
-                .ToListAsync();
-
-            if (todaysWorkingTimes is [])
-                return new CurrentTimeDTO { WorkTime = TimeSpan.Zero };
-            
-            // Most recent time is from today, or from yesterday but already completed
-            if (todaysWorkingTimes.First().Date == DateOnly.FromDateTime(DateTime.Today) || todaysWorkingTimes.First().End is not null)
-            {
-                // Then only take the times from today
-                todaysWorkingTimes = todaysWorkingTimes
-                    .Where(f => f.Date == DateOnly.FromDateTime(DateTime.Today))
-                    .ToList();
-            }
-
-            var currentlyCheckedInTime = todaysWorkingTimes.First().End is null
-                ? todaysWorkingTimes.First()
-                : null;
-
-            return new CurrentTimeDTO
-            {
-                WorkTime = TimeSpan.FromSeconds(todaysWorkingTimes.Where(f => f.End != null).Sum(f => (f.End.Value - f.Start).TotalSeconds)),
-                LastCheckinTime = new DateTime(currentlyCheckedInTime.Date, currentlyCheckedInTime.Start),
-                LastCheckinType = currentlyCheckedInTime?.Type,
-            };
-        });
+        group.MapGet("/current", GetCurrentWorkingTime);
         
         group.MapPost("/actions/checkin", async (CheckinRequest request, CatContext catContext, HttpContext httpContext) =>
         {
@@ -225,7 +192,8 @@ public static class WorkingTimeRoutes
             await catContext.WorkingTimes.AddAsync(workingTimeEntity);
             await catContext.SaveChangesAsync();
             
-            return Results.Ok(workingTimeEntity.ToDTO());
+            var workingTime = await GetCurrentWorkingTime(catContext, httpContext);
+            return Results.Ok(workingTime);
         });
         
         group.MapPost("/actions/checkout", async (CatContext catContext, HttpContext httpContext) =>
@@ -270,7 +238,35 @@ public static class WorkingTimeRoutes
             
             await catContext.SaveChangesAsync();
             
-            return Results.Ok(lastWorkingTime.ToDTO());
+            var workingTime = await GetCurrentWorkingTime(catContext, httpContext);
+            return Results.Ok(workingTime);
         });
+    }
+
+    private static async Task<CurrentTimeDTO> GetCurrentWorkingTime(CatContext catContext, HttpContext httpContext)
+    {
+        var employee = await catContext.Employees.FindAsync(httpContext.User.GetEmployeeId()) ?? throw new SomethingFishyException();
+
+        var todaysWorkingTimes = await catContext.WorkingTimes.Where(f => f.EmployeeId == employee.Id)
+            .WhereIsRecentWorkingTime()
+            .OrderByDescending(f => f.Date)
+            .ThenByDescending(f => f.Start)
+            .ToListAsync();
+
+        if (todaysWorkingTimes is []) return new CurrentTimeDTO { WorkTime = TimeSpan.Zero };
+
+        // Most recent time is from today, or from yesterday but already completed
+        if (todaysWorkingTimes.First().Date == DateOnly.FromDateTime(DateTime.Today) || todaysWorkingTimes.First().End is not null)
+        {
+            // Then only take the times from today
+            todaysWorkingTimes = todaysWorkingTimes.Where(f => f.Date == DateOnly.FromDateTime(DateTime.Today))
+                .ToList();
+        }
+
+        var currentlyCheckedInTime = todaysWorkingTimes.First().End is null
+            ? todaysWorkingTimes.First()
+            : null;
+
+        return new CurrentTimeDTO { WorkTime = TimeSpan.FromSeconds(todaysWorkingTimes.Where(f => f.End != null).Sum(f => (f.End.Value - f.Start).TotalSeconds)), LastCheckinTime = new DateTime(currentlyCheckedInTime.Date, currentlyCheckedInTime.Start), LastCheckinType = currentlyCheckedInTime?.Type, };
     }
 }
