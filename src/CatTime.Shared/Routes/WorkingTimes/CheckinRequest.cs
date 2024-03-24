@@ -2,5 +2,5 @@
 
 public class CheckinRequest
 {
-    public WorkingTimeType Type { get; set; }
+    public WorkingTimeType? Type { get; set; }
 }

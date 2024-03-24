@@ -213,7 +213,7 @@ public static class WorkingTimeRoutes
                 Date = DateOnly.FromDateTime(DateTime.Today),
                 Start = TimeOnly.FromDateTime(DateTime.Now),
                 
-                Type = request.Type,
+                Type = request.Type ?? WorkingTimeType.Office,
             };
             
             await catContext.WorkingTimes.AddAsync(workingTimeEntity);
