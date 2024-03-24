@@ -3,24 +3,26 @@
 @layout EmptyLayout
 
 @using CatTime.Frontend.Pages.Auth.Models
-@using CatTime.Shared
 @using Microsoft.AspNetCore.Components.Forms
+@using CatTime.Frontend.Infrastructure.Service
 
 @inject NavigationManager NavigationManager;
+@inject ClientService ClientService;
 
 <div class="register-container">
     <div class="register-card">
         <div class="image-container">
-            <img src="images/registercat.jpeg"/>
+            <img src="images/logocat.jpeg" />
         </div>
-        <EditForm Model="@_model" OnValidSubmit="OnSubmit" class="form-container">
+        <EditForm Model="@Model" OnValidSubmit="OnSubmit" class="form-container">
+            <DataAnnotationsValidator />
             <div class="register-form-container">
                 <MudText Typo="Typo.h6">CatTime</MudText>
-                <MudTextField @bind-Value="_model.FirstName" Label="Vorname" For="@(() => _model.FirstName)"/>
-                <MudTextField @bind-Value="_model.LastName" Label="Nachname" For="@(() => _model.LastName)"/>
-                <MudTextField @bind-Value="_model.Email" Label="E-Mail Adresse" For="@(() => _model.Email)"/>
-                <MudTextField @bind-Value="_model.Password" Label="Passwort" For="@(() => _model.Password)" InputType="InputType.Password" HelperText="Wählen Sie ein sicheres Passwort"/>
-                <MudTextField @bind-Value="_model.ConfirmPassword" Label="Passwort wiederholen" For="@(() => _model.ConfirmPassword)" InputType="InputType.Password" HelperText="Wiederholen Sie das Passwort"/>
+                <MudTextField @bind-Value="Model!.FirstName" Label="Vorname" For="@(() => Model!.FirstName)"/>
+                <MudTextField @bind-Value="Model!.LastName" Label="Nachname" For="@(() => Model!.LastName)"/>
+                <MudTextField @bind-Value="Model!.Email" Label="E-Mail Adresse" For="@(() => Model!.Email)"/>
+                <MudTextField @bind-Value="Model!.Password" Label="Passwort" For="@(() => Model!.Password)" InputType="InputType.Password" HelperText="Wählen Sie ein sicheres Passwort"/>
+                <MudTextField @bind-Value="Model!.ConfirmPassword" Label="Passwort wiederholen" For="@(() => Model!.ConfirmPassword)" InputType="InputType.Password" HelperText="Wiederholen Sie das Passwort"/>
 
                 <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="submit-button">Registrieren</MudButton>
             </div>
@@ -29,11 +31,22 @@
 </div>
 
 @code {
-    private RegisterModel _model = new RegisterModel();
+    [SupplyParameterFromForm] public RegisterModel? Model { get; set; }
+    
+    protected override void OnInitialized() => Model ??= new();
 
     private void OnSubmit(EditContext context)
     {
-        this.NavigationManager.NavigateTo("/login");
+        if (Model?.Password?.Equals(Model?.ConfirmPassword) is false || 
+            string.IsNullOrWhiteSpace(Model?.FirstName) || 
+            string.IsNullOrWhiteSpace(Model?.LastName))
+        {
+            return;
+        }
+
+        ClientService.Register(Model.FirstName, Model.LastName, Model.Email, Model.Password);
+        
+        NavigationManager.NavigateTo("/login");
         this.StateHasChanged();
     }
 }
