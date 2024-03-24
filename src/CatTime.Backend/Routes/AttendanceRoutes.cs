@@ -47,8 +47,9 @@ public static class AttendanceRoutes
             }
 
             return result
-                .OrderByDescending(f => f.IsPresent)
-                .ThenBy(f => f.LastType).ToList();
+                .OrderByDescending(f => f.IsPresent) // Present first
+                .ThenBy(f => f.LastType)
+                .ToList();
         });
     }
 }
