@@ -4,41 +4,43 @@ using CatTime.Frontend.Infrastructure.Service;
 
 public class CustomAuthenticationStateProvider : AuthenticationStateProvider
 {
-    private const string LocalStorageKey = "authToken";
+    private const string LocalStorageKey = "loginResponse";
 
     private readonly LocalStorageService _localStorageService;
     private readonly ClientService _clientService;
 
     public CustomAuthenticationStateProvider(LocalStorageService localStorageService, ClientService clientService)
     {
-        _localStorageService = localStorageService;
-        _clientService = clientService;
+        this._localStorageService = localStorageService;
+        this._clientService = clientService;
     }
 
-    public async Task<string> GetTokenAsync() => await _localStorageService.GetItemAsync<string>(LocalStorageKey);
-
-    public async Task SetTokenAsync(string? token)
+    public async Task<LoginResponse?> GetTokenAsync()
+    {
+        return await this._localStorageService.GetItemAsync<LoginResponse?>(LocalStorageKey);
+    }
+    public async Task SetTokenAsync(LoginResponse? token)
     {
         if (token == null)
         {
-           await _localStorageService.RemoveItemAsync(LocalStorageKey);
+           await this._localStorageService.RemoveItemAsync(LocalStorageKey);
         }
         else
         {
-           await _localStorageService.SetItem<string>(LocalStorageKey,token);
+           await this._localStorageService.SetItem<LoginResponse>(LocalStorageKey,token);
         }
 
-        NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
+        this.NotifyAuthenticationStateChanged(this.GetAuthenticationStateAsync());
     }
 
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
-        var token = await GetTokenAsync();
+        var token = await this.GetTokenAsync();
 
-        if (string.IsNullOrWhiteSpace(token))
+        if (string.IsNullOrWhiteSpace(token?.AccessToken))
             return new AuthenticationState(new ClaimsPrincipal());
 
-        this._clientService.SetAccessToken(token);
+        this._clientService.SetAccessToken(token.AccessToken);
 
         try
         {
@@ -57,9 +59,21 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
         }
         catch (Exception e)
         {
-            // Something went wrong, token is probably invalid/expired
-            await this.SetTokenAsync(null);
-            return new AuthenticationState(new ClaimsPrincipal());
+            // Something went wrong, token is probably expired, try refreshing it with the refresh-token
+            try
+            {
+                var newToken = await this._clientService.Refresh(token.RefreshToken);
+                await this.SetTokenAsync(newToken);
+
+                // We refreshed the token, try again
+                return await this.GetAuthenticationStateAsync();
+            }
+            catch (Exception exception)
+            {
+                // Nope, still didn't work, we bail out, user has to login again
+                await this.SetTokenAsync(null);
+                return new AuthenticationState(new ClaimsPrincipal());
+            }
         }
     }
 }

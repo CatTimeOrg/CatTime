@@ -16,7 +16,7 @@ namespace CatTime.Frontend.Infrastructure.Service
         {
             var json = await _jsRuntime.InvokeAsync<string>("localStorage.getItem", key);
 
-            if (json == null)
+            if (string.IsNullOrWhiteSpace(json))
             {
                 return default;
             }
