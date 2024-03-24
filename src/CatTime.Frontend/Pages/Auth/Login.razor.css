@@ -1,5 +1,6 @@
 ﻿.login-container {
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     height: 100vh;
@@ -33,7 +34,6 @@
     
 }
 
-
 ::deep .submit-button {
     float: right;
     width: fit-content;
@@ -63,6 +63,12 @@
     grid-area: action;
     display: flex;
     flex-direction: column;
+}
+
+::deep .error-alert {
+    position: absolute;
+    top: 2rem;
+    right: 5rem;
 }
 
 

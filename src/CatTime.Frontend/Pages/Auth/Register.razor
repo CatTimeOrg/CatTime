@@ -26,27 +26,49 @@
 
                 <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="submit-button">Registrieren</MudButton>
             </div>
+            
         </EditForm>
     </div>
+    @if (string.IsNullOrWhiteSpace(_errorMessage) is false)
+    {
+        <MudAlert Severity="Severity.Error" Dense="true" Elevation="0" Class="error-alert my-2">
+            <MudAlertTitle>Error</MudAlertTitle>
+            <MudAlertContent>@_errorMessage</MudAlertContent>
+        </MudAlert>
+    }
 </div>
 
 @code {
     [SupplyParameterFromForm] public RegisterModel? Model { get; set; }
     
+    private string? _errorMessage;
+    
     protected override void OnInitialized() => Model ??= new();
 
-    private void OnSubmit(EditContext context)
+    private async Task OnSubmit(EditContext context)
     {
-        if (Model?.Password?.Equals(Model?.ConfirmPassword) is false || 
-            string.IsNullOrWhiteSpace(Model?.FirstName) || 
-            string.IsNullOrWhiteSpace(Model?.LastName))
-        {
-            return;
-        }
+        if (AreFormValuesValid() is false) return;
 
-        ClientService.Register(Model.FirstName, Model.LastName, Model.Email, Model.Password);
+        try
+        {
+            await ClientService.Register(Model.FirstName, Model.LastName, Model.Email, Model.Password);
         
-        NavigationManager.NavigateTo("/login");
-        this.StateHasChanged();
+            NavigationManager.NavigateTo("/login");
+            StateHasChanged();
+        }
+        catch (Exception e)
+        {
+            _errorMessage = "Fehler bei der Registrierung";
+            Console.WriteLine($"{_errorMessage}, {e}");
+        }
+    }
+    
+    private bool AreFormValuesValid() => 
+        string.IsNullOrWhiteSpace(Model?.FirstName) is false || 
+        string.IsNullOrWhiteSpace(Model?.LastName) is false  || 
+        string.IsNullOrWhiteSpace(Model?.Email) is false || 
+        string.IsNullOrWhiteSpace(Model?.Password) is false ||
+        Model?.Password?.Equals(Model?.ConfirmPassword) is false || 
+        Model?.Password?.Equals(Model?.ConfirmPassword) is false;
     }
 }
