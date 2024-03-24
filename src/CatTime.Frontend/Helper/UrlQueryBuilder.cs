@@ -12,6 +12,11 @@ namespace CatTime.Frontend.Helper
             this._parameters = new List<KeyValuePair<string, object>>();
         }
 
+        public static implicit operator string(UrlQueryBuilder urlQueryBuilder)
+        {
+            return urlQueryBuilder.ToQueryString();
+        }
+
         public void AddParameter(string parameterName, object? parameterValue, bool condition = true)
         {
             if (parameterName == null || parameterValue == null || condition == false)
