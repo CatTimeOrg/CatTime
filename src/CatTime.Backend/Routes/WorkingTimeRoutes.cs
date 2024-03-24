@@ -1,5 +1,6 @@
 ﻿using CatTime.Backend.Database;
 using CatTime.Backend.Database.Entities;
+using CatTime.Backend.Exceptions;
 using CatTime.Backend.Extensions;
 using CatTime.Shared;
 using CatTime.Shared.Routes.WorkingTimes;
@@ -22,7 +23,7 @@ public static class WorkingTimeRoutes
                 return Results.Problem("Mitarbeiter nicht gefunden.", statusCode: StatusCodes.Status400BadRequest);
             }
             
-            var currentEmployee = await catContext.Employees.FindAsync(httpContext.User.GetEmployeeId());
+            var currentEmployee = await catContext.Employees.FindAsync(httpContext.User.GetEmployeeId()) ?? throw new SomethingFishyException();
             if (currentEmployee != targetEmployee && currentEmployee.Role is not EmployeeRole.Admin)
             {
                 return Results.Problem("Nicht autorisiert Zeiten für einen anderen Mitarbeiter aufzulisten.", statusCode: StatusCodes.Status400BadRequest);
@@ -46,10 +47,15 @@ public static class WorkingTimeRoutes
                 return Results.Problem("Mitarbeiter nicht gefunden.", statusCode: StatusCodes.Status400BadRequest);
             }
             
-            var currentEmployee = await catContext.Employees.FindAsync(httpContext.User.GetEmployeeId());
+            var currentEmployee = await catContext.Employees.FindAsync(httpContext.User.GetEmployeeId()) ?? throw new SomethingFishyException();
             if (currentEmployee != targetEmployee && currentEmployee.Role is not EmployeeRole.Admin)
             {
                 return Results.Problem("Nicht autorisiert Zeiten für einen anderen Mitarbeiter anzulegen.", statusCode: StatusCodes.Status400BadRequest);
+            }
+            
+            if (request.End is not null && request.End < request.Start)
+            {
+                return Results.Problem("Endzeit muss nach der Startzeit liegen.", statusCode: StatusCodes.Status400BadRequest);
             }
             
             var workingTimeEntity = new WorkingTime
@@ -107,7 +113,7 @@ public static class WorkingTimeRoutes
                 return Results.Problem("Mitarbeiter nicht gefunden.", statusCode: StatusCodes.Status400BadRequest);
             }
             
-            var currentEmployee = await catContext.Employees.FindAsync(httpContext.User.GetEmployeeId());
+            var currentEmployee = await catContext.Employees.FindAsync(httpContext.User.GetEmployeeId()) ?? throw new SomethingFishyException();
             if (currentEmployee != targetEmployee && currentEmployee.Role is not EmployeeRole.Admin)
             {
                 return Results.Problem("Nicht autorisiert Zeiten für einen anderen Mitarbeiter zu bearbeiten.", statusCode: StatusCodes.Status400BadRequest);
@@ -142,7 +148,7 @@ public static class WorkingTimeRoutes
                 return Results.Problem("Mitarbeiter nicht gefunden.", statusCode: StatusCodes.Status400BadRequest);
             }
 
-            var currentEmployee = await catContext.Employees.FindAsync(httpContext.User.GetEmployeeId());
+            var currentEmployee = await catContext.Employees.FindAsync(httpContext.User.GetEmployeeId()) ?? throw new SomethingFishyException();
             if (currentEmployee != targetEmployee && currentEmployee.Role is not EmployeeRole.Admin)
             {
                 return Results.Problem("Nicht autorisiert Zeiten für einen anderen Mitarbeiter zu löschen.", statusCode: StatusCodes.Status400BadRequest);
@@ -156,7 +162,7 @@ public static class WorkingTimeRoutes
         
         group.MapGet("/current", async (CatContext catContext, HttpContext httpContext) =>
         {
-            var employee = await catContext.Employees.FindAsync(httpContext.User.GetEmployeeId());
+            var employee = await catContext.Employees.FindAsync(httpContext.User.GetEmployeeId()) ?? throw new SomethingFishyException();
             
             var todaysWorkingTimes = await catContext.WorkingTimes
                 .Where(f => f.EmployeeId == employee.Id)
@@ -166,7 +172,7 @@ public static class WorkingTimeRoutes
                 .ToListAsync();
 
             if (todaysWorkingTimes is [])
-                return new CurrentTimeDTO { WorkTime = TimeSpan.Zero, LastCheckinTime = null };
+                return new CurrentTimeDTO { WorkTime = TimeSpan.Zero };
             
             // Most recent time is from today, or from yesterday but already completed
             if (todaysWorkingTimes.First().Date == DateOnly.FromDateTime(DateTime.Today) || todaysWorkingTimes.First().End is not null)
@@ -191,7 +197,7 @@ public static class WorkingTimeRoutes
         
         group.MapPost("/actions/checkin", async (CheckinRequest request, CatContext catContext, HttpContext httpContext) =>
         {
-            var employee = await catContext.Employees.FindAsync(httpContext.User.GetEmployeeId());
+            var employee = await catContext.Employees.FindAsync(httpContext.User.GetEmployeeId()) ?? throw new SomethingFishyException();
             
             var lastWorkingTime = await catContext.WorkingTimes
                 .Where(f => f.EmployeeId == employee.Id)
@@ -224,7 +230,7 @@ public static class WorkingTimeRoutes
         
         group.MapPost("/actions/checkout", async (CatContext catContext, HttpContext httpContext) =>
         {
-            var employee = await catContext.Employees.FindAsync(httpContext.User.GetEmployeeId());
+            var employee = await catContext.Employees.FindAsync(httpContext.User.GetEmployeeId()) ?? throw new SomethingFishyException();
             
             var lastWorkingTime = await catContext.WorkingTimes
                 .Where(f => f.EmployeeId == employee.Id)

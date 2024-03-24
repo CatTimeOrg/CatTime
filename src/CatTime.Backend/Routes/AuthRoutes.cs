@@ -28,7 +28,7 @@ public static class AuthRoutes
                 return Results.Problem("E-Mail-Adresse oder Passwort ist ungültig.", statusCode: StatusCodes.Status400BadRequest);
             }
 
-            if (BCrypt.Net.BCrypt.Verify(request.Password, employee.PasswordHash) is false)
+            if (BCrypt.Net.BCrypt.Verify(request.Password ?? string.Empty, employee.PasswordHash) is false)
             {
                 return Results.Problem("E-Mail-Adresse oder Passwort ist ungültig.", statusCode: StatusCodes.Status400BadRequest);
             }
@@ -64,6 +64,17 @@ public static class AuthRoutes
         
         group.MapPost("/register", async (RegisterRequest request, CatContext catContext) =>
         {
+            if (string.IsNullOrWhiteSpace(request?.FirstName))
+                return Results.Problem("Vorname ist erforderlich.", statusCode: StatusCodes.Status400BadRequest);
+            if (string.IsNullOrWhiteSpace(request?.LastName))
+                return Results.Problem("Nachname ist erforderlich.", statusCode: StatusCodes.Status400BadRequest);
+            if (string.IsNullOrWhiteSpace(request?.EmailAddress))
+                return Results.Problem("E-Mail-Adresse ist erforderlich.", statusCode: StatusCodes.Status400BadRequest);
+            if (string.IsNullOrWhiteSpace(request?.Password))
+                return Results.Problem("Passwort ist erforderlich.", statusCode: StatusCodes.Status400BadRequest);
+            if (request.Password.Length is < 8 or > 30)
+                return Results.Problem("Passwort muss zwischen 8 und 30 Zeichen lang sein.", statusCode: StatusCodes.Status400BadRequest);
+            
             var existingEmployee = await catContext.Employees.FirstOrDefaultAsync(e => e.EmailAddress == request.EmailAddress);
             if (existingEmployee != null)
             {

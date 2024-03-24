@@ -1,4 +1,5 @@
 ﻿using CatTime.Backend.Database;
+using CatTime.Backend.Exceptions;
 using CatTime.Backend.Extensions;
 using CatTime.Shared;
 
@@ -14,29 +15,24 @@ public static class CompanyRoutes
         group.MapGet("/me", async (CatContext catContext, HttpContext httpContext) =>
         {
             var companyId = httpContext.User.GetCompanyId();
-            var company = await catContext.Companies.FindAsync(companyId);
+            var company = await catContext.Companies.FindAsync(companyId) ?? throw new SomethingFishyException();
 
-            return new CompanyDTO
-            {
-                Id = company.Id,
-                Name = company.Name,
-            };
+            return company.ToDTO();
         });
 
         group.MapPut("/me", async (CompanyDTO companyDTO, CatContext catContext, HttpContext httpContext) =>
         {
+            if (string.IsNullOrWhiteSpace(companyDTO?.Name))
+                return Results.Problem("Name ist erforderlich.", statusCode: StatusCodes.Status400BadRequest);
+            
             var companyId = httpContext.User.GetCompanyId();
-            var company = await catContext.Companies.FindAsync(companyId);
+            var company = await catContext.Companies.FindAsync(companyId) ?? throw new SomethingFishyException();
 
             company.Name = companyDTO.Name;
 
             await catContext.SaveChangesAsync();
 
-            return new CompanyDTO
-            {
-                Id = company.Id,
-                Name = company.Name,
-            };
+            return Results.Ok(company.ToDTO());
         });
     }
 }
