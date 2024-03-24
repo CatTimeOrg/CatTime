@@ -3,6 +3,7 @@ using CatTime.Shared;
 using System.Net.Http;
 using CatTime.Shared.Routes.Employees;
 using System.Net.Http.Json;
+using CatTime.Frontend.Helper;
 
 namespace CatTime.Frontend.Infrastructure.Service
 {
@@ -10,16 +11,16 @@ namespace CatTime.Frontend.Infrastructure.Service
     {
         /** All access methods related to route /employees **/
 
-        public async Task<List<WorkingTimeDTO>> GetWorkingTimes(DateTime from, DateTime to, int? employeeId=null)
+        public async Task<List<WorkingTimeDTO>> GetWorkingTimes(DateOnly? from=null, DateOnly? to=null, int? employeeId=null)
         {
-            var route = $"/workingtime?from={from}&to={to}";
+            var urlQueryBuilder = new UrlQueryBuilder("/workingtime");            
+            urlQueryBuilder.AddParameter("from", from);
+            urlQueryBuilder.AddParameter("to", to);
+            urlQueryBuilder.AddParameter("employeeId", employeeId);
 
-            if(employeeId.HasValue)
-            {
-                route += $"&employeeId={employeeId}";
-            }                
+            var test = urlQueryBuilder.ToQueryString();
 
-            var response = await this._httpClient.GetAsync(route);
+            var response = await this._httpClient.GetAsync(test);
             response.EnsureSuccessStatusCode();
 
             return await response.Content.ReadFromJsonAsync<List<WorkingTimeDTO>>();
