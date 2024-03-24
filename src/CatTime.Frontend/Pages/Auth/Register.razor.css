@@ -40,3 +40,9 @@
     margin-left: auto;
     margin-top: 1rem;
 }
+
+::deep .error-alert {
+    position: absolute;
+    top: 2rem;
+    right: 5rem;
+}

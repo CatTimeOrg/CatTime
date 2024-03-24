@@ -19,75 +19,61 @@
         <div class="image-container">
             <img src="images/logocat.jpeg" width="300px"/>
         </div>
-        <EditForm Model="@_model" OnValidSubmit="SignInUserAsync" class="form-container">
+        <EditForm Model="@Model" OnValidSubmit="DoLogin" class="form-container">
+            <DataAnnotationsValidator />
             <div class="login-form-container">
                 <div class="login-form-title">
                     <MudText Typo="Typo.h3">CatTime</MudText>
                 </div>
                 <div class="login-form-fields">
-                    <MudTextField @bind-Value="_model.Email" Label="E-Mail Adresse" For="@(() => _model.Email)"/>
-                    <MudTextField @bind-Value="_model.Password" Label="Passwort" For="@(() => _model.Password)" InputType="InputType.Password"/>
+                    <MudTextField @bind-Value="Model.Email" Label="E-Mail Adresse" For="@(() => Model.Email)"/>
+                    <MudTextField @bind-Value="Model.Password" Label="Passwort" For="@(() => Model.Password)" InputType="InputType.Password"/>
                 </div>
                 <div class="login-action">
                     <span>Noch keinen Account?<MudLink Href="/register" Typo="Typo.body2">Jetzt registrieren!</MudLink></span>
                     <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="submit-button">Anmelden</MudButton>
-                </div>    
+                </div>
             </div>
         </EditForm>
     </div>
+    @if (string.IsNullOrWhiteSpace(_errorMessage) is false)
+    {
+        <MudAlert Severity="Severity.Error" Dense="true" Elevation="0" Class="error-alert my-2">
+            <MudAlertTitle>Error</MudAlertTitle>
+            <MudAlertContent>@_errorMessage</MudAlertContent>
+        </MudAlert>
+    }
 </div>
 
 @code {
-    private RegisterModel _model = new RegisterModel();
+    [SupplyParameterFromQuery(Name = "returnUrl")] private string? ReturnUrl { get; set; }
+    [SupplyParameterFromForm] public  LoginModel? Model { get; set; }
+    
+    private string? _errorMessage;
 
-    /// <summary>
-    /// If a Return URL is given, we will navigate there after login.
-    /// </summary>
-    [SupplyParameterFromQuery(Name = "returnUrl")]
-    private string? ReturnUrl { get; set; }
+    protected override void OnInitialized() => Model ??= new();
 
-    /// <summary>
-    /// The Model the Form is going to bind to.
-    /// </summary>
-
-
-    /// <summary>
-    /// Error Message.
-    /// </summary>
-    private string? ErrorMessage;
-
-    /// <summary>
-    /// Signs in the User to the Service using Cookie Authentication.
-    /// </summary>
-    /// <returns></returns>
-    public async Task SignInUserAsync()
+    public async Task DoLogin()
     {
-        ErrorMessage = null;
-
-
         try
         {
-            var loginResult = await this.ClientService.Login(_model.Email, _model.Password);
-
+            if (AreFormValuesValid() is false) return;
+            
+            var loginResult = await this.ClientService.Login(Model.Email, Model.Password);
             await AuthStateProvider.SetTokenAsync(loginResult);
-
-            var navigationUrl = GetNavigationUrl();
-
-            NavigationManager.NavigateTo(navigationUrl);
+            
+            NavigationManager.NavigateTo(GetNavigationUrl());
         }
-        catch
+        catch (Exception e)
         {
-            ErrorMessage = "Login fehlgeschlagen";
+            _errorMessage = "Login fehlgeschlagen!";
+            Console.WriteLine($"{_errorMessage}, {e}");
         }
     }
 
-    private string GetNavigationUrl()
-    {
-        if (string.IsNullOrWhiteSpace(ReturnUrl))
-        {
-            return "/dashboard";
-        }
+    private bool AreFormValuesValid() =>
+        string.IsNullOrWhiteSpace(Model?.Email) is false ||
+        string.IsNullOrWhiteSpace(Model?.Password) is false;
 
-        return ReturnUrl;
-    }
+    private string GetNavigationUrl() => string.IsNullOrWhiteSpace(ReturnUrl) ? "/dashboard" : ReturnUrl;
 }
