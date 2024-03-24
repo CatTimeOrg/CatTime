@@ -41,16 +41,7 @@ public static class EmployeeRoutes
                 return Results.Problem("E-Mail-Adresse bereits vergeben.", statusCode: StatusCodes.Status400BadRequest);
             }
 
-            var newEmployee = new Employee
-            {
-                CompanyId = currentEmployee.CompanyId,
-                FirstName = request.FirstName,
-                LastName = request.LastName,
-                EmailAddress = request.EmailAddress,
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
-                Role = request.Role,
-                IsActive = true
-            };
+            var newEmployee = new Employee(request, currentEmployee.CompanyId);
 
             await catContext.Employees.AddAsync(newEmployee);
             await catContext.SaveChangesAsync();
@@ -90,12 +81,7 @@ public static class EmployeeRoutes
                 return Results.Problem($"Es wurde kein Mitarbeiter für Id:{id} gefunden", statusCode: StatusCodes.Status400BadRequest);
             }
 
-            employee.FirstName = request.FirstName != null ? request.FirstName : employee.FirstName;
-            employee.LastName = request.LastName != null ? request.LastName : employee.LastName;
-            employee.EmailAddress = request.EmailAddress != null ? request.EmailAddress : employee.EmailAddress;
-            employee.PasswordHash = request.Password != null ? BCrypt.Net.BCrypt.HashPassword(request.Password) : employee.PasswordHash;
-            employee.Role = request.Role.HasValue ? request.Role.Value : employee.Role;
-            employee.IsActive = request.IsActive.HasValue ? request.IsActive.Value : employee.IsActive;
+            employee.Update(request);
 
             await catContext.SaveChangesAsync();
 
