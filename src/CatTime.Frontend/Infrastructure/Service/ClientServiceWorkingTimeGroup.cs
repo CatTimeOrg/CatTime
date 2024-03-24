@@ -74,7 +74,7 @@ namespace CatTime.Frontend.Infrastructure.Service
 
         public async Task<WorkingTimeDTO> CheckOut()
         {
-            var response = await this._httpClient.GetAsync($"/workingtime/actions/checkout");
+            var response = await this._httpClient.PostAsync($"/workingtime/actions/checkout", null);
             response.EnsureSuccessStatusCode();
 
             return await response.Content.ReadFromJsonAsync<WorkingTimeDTO>();
