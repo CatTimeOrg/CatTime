@@ -1,4 +1,7 @@
 ﻿
+using Microsoft.AspNetCore.Components;
+using System.Text;
+
 namespace CatTime.Frontend.Helper
 {
     public class UrlQueryBuilder
@@ -27,14 +30,21 @@ namespace CatTime.Frontend.Helper
 
         public string ToQueryString()
         {
-            var url = this._startUrl;
+            if(this._parameters.Count == 0)
+                return this._startUrl;
+
+            var stringBuilder = new StringBuilder(this._startUrl);            
+            var seperator = this._startUrl.Contains("?") ? "&" : "?";
 
             foreach (var parameter in this._parameters)
             {
-                url = this.AddQueryParameterToUrl(url, parameter.Key, this.ParameterValueToString(parameter.Value));
+                stringBuilder.Append($"{seperator}{parameter.Key}={this.ParameterValueToString(parameter.Value)}");
+
+                if(seperator == "?")
+                    seperator = "&";
             }
 
-            return url;
+            return stringBuilder.ToString();
         }
 
         private string ParameterValueToString(object value)
@@ -58,16 +68,6 @@ namespace CatTime.Frontend.Helper
                 return boolValue.ToString().ToLower();
 
             return string.Empty;
-        }
-
-        private string AddQueryParameterToUrl(string url, string parameterName, string? parameterValue)
-        {
-            if (parameterValue == null)
-                return url;
-
-            var seperator = url.Contains("?") ? "&" : "?";
-
-            return $"{url}{seperator}{parameterName}={parameterValue}";
         }
     }
 }
