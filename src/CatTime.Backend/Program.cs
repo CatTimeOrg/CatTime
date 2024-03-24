@@ -49,6 +49,7 @@ static void ConfigureRoutes(IEndpointRouteBuilder routes)
 {
     routes.MapGet("/", () => "Welcome to CatTime-API!");
 
+    routes.MapAttendance();
     routes.MapAuth();
     routes.MapCompany();
     routes.MapEmployee();
