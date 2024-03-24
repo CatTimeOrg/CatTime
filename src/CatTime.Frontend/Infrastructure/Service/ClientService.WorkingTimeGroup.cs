@@ -18,9 +18,7 @@ namespace CatTime.Frontend.Infrastructure.Service
             urlQueryBuilder.AddParameter("to", to);
             urlQueryBuilder.AddParameter("employeeId", employeeId);
 
-            var test = urlQueryBuilder.ToQueryString();
-
-            var response = await this._httpClient.GetAsync(test);
+            var response = await this._httpClient.GetAsync(urlQueryBuilder);
             response.EnsureSuccessStatusCode();
 
             return await response.Content.ReadFromJsonAsync<List<WorkingTimeDTO>>();
