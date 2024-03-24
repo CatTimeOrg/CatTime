@@ -1,0 +1,43 @@
+﻿.employee-container {
+    display: grid;
+    grid-template-rows: 4rem 1fr;
+    grid-template-areas:
+        "header"
+        "content";
+    height: 100vh;
+}
+
+.current-running-time {
+    grid-area: header;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.employee-content-area {
+    grid-area: content;
+}
+
+.employee-list-area {
+   height: 82vh;
+   overflow-y: auto;
+}
+
+
+::deep .custom-avatar {
+    width: 5rem !important;
+    height: 5rem !important;
+}
+
+
+.full-width {
+    width: 100%;
+}
+
+.custom-card {
+    border-radius: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(7px);
+    width: 20rem;
+    height: 20rem;
+}

@@ -19,6 +19,7 @@
                         <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home" OnClick="ToDashboard">Dashboard</MudNavLink>
                         <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.ManageHistory" OnClick="ToMyTimes">Meine Zeiten</MudNavLink>
                         <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.EditCalendar">Urlaub</MudNavLink>
+                        <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Groups2" OnClick="Employees">Mitarbeiter</MudNavLink>
                         <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Logout" OnClick="Logout">Logout</MudNavLink>
                     </MudNavMenu>
                 </MudDrawer>
@@ -45,5 +46,10 @@
     {
         await AuthStateProvider.SetTokenAsync(null);
         this.NavigationManager.NavigateTo("/login");
+    }
+
+    private async void Employees()
+    {
+        this.NavigationManager.NavigateTo("/employees");
     }
 }
